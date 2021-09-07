@@ -6,6 +6,7 @@ import java.util.Set;
 
 @Data
 public class ActionFuzzingResult {
+    private String smartContract;
     private String name;
     private long startTime;
     private long time;

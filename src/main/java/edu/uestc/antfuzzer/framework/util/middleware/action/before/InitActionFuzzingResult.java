@@ -23,11 +23,13 @@ public class InitActionFuzzingResult extends BeforeCheck {
     protected boolean currentCheck() throws IOException, InterruptedException, IllegalAccessException, InvocationTargetException {
         ActionFuzzingResult currentActionFuzzingResult = environmentUtil.getActionFuzzingResult();
         Action action = environmentUtil.getAction();
-        if (currentActionFuzzingResult == null || !currentActionFuzzingResult.getName().equalsIgnoreCase(action.getName())) {
+        String smartContract = environmentUtil.getSmartContract().getName();
+        if (currentActionFuzzingResult == null || !currentActionFuzzingResult.getName().equals(action.getName()) || !smartContract.equals(currentActionFuzzingResult.getSmartContract())) {
             ActionFuzzingResult actionFuzzingResult = new ActionFuzzingResult();
             actionFuzzingResult.setName(environmentUtil.getAction().getName());
             actionFuzzingResult.setStartTime(System.currentTimeMillis());
             actionFuzzingResult.setVulnerability(new HashSet<>());
+            actionFuzzingResult.setSmartContract(smartContract);
             currentActionFuzzingResult = actionFuzzingResult;
             environmentUtil.setActionFuzzingResult(actionFuzzingResult);
         }

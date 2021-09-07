@@ -34,33 +34,21 @@ public class BlockDependencyFuzzer extends BaseFuzzer {
     @Fuzz
     public FuzzingStatus fuzz(@Param(ParamType.Arguments) String arguments,
                               @Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
-//        clearLogFiles();
-//        if (canAcceptEOS) {
-//            // 若接收EOS, 使用transfer
-//            // 成功完成一次转账
-//            cleosUtil.pushAction(
-//                    "eosio.token",
-//                    "transfer",
-//                    jsonUtil.getJson(
-//                            "eosio",
-//                            smartContract.getName(),
-//                            (String) argumentGenerator.generateSpecialTypeArgument("asset"),
-//                            (String) argumentGenerator.generateSpecialTypeArgument("string")
-//                    ),
-//                    "eosio"
-//            );
-//            boolean result = fileUtil.checkFile(getCheckOperation(), "/root/.local/share/eosio/logfile.txt");
-//            if (result) {
-//                environmentUtil.getActionFuzzingResult().getVulnerability().add("BlockDependency");
-//                return FuzzingStatus.SUCCESS;
-//            }
-//        }
         // 测试发送其他action
         clearLogFiles();
         NameGenerator nameGenerator = (NameGenerator) argumentGenerator.getTypeGeneratorCollection().get("name");
-        boolean isTransfer = action.equalsIgnoreCase("transfer");
-        String smartContractName = isTransfer ? "eosio.token" : smartContract.getName();
-        String accountName = isTransfer ? "eosio" : nameGenerator.generate(arguments);
+        String smartContractName = smartContract.getName();
+        String accountName = nameGenerator.generate(arguments);
+        if (action.equalsIgnoreCase("transfer")) {
+            smartContractName = "eosio.token";
+            accountName = "eosio";
+            arguments = jsonUtil.getJson(
+                    "eosio",
+                    smartContract.getName(),
+                    (String) argumentGenerator.generateSpecialTypeArgument("asset"),
+                    (String) argumentGenerator.generateSpecialTypeArgument("string")
+            );
+        }
         cleosUtil.pushAction(
                 smartContractName,
                 action,
