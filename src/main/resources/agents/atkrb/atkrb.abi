@@ -1,0 +1,42 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT ",
+    "version": "eosio::abi/1.1",
+    "types": [],
+    "structs": [
+        {
+            "name": "attack",
+            "base": "",
+            "fields": [
+                {
+                    "name": "bet",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "rollback",
+            "base": "",
+            "fields": [
+                {
+                    "name": "in",
+                    "type": "asset"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "attack",
+            "type": "attack",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rollback",
+            "type": "rollback",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [],
+    "ricardian_clauses": [],
+    "variants": []
+}

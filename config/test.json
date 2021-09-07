@@ -1,0 +1,11 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "BlockDependency",
+      "arg_driver": "local"
+    }
+  ],
+  "has_breakpoint": true,
+  "output_file": "./result/result.json",
+  "smart_contract_dir": "/root/EOSFuzzer/dataset/test"
+}
