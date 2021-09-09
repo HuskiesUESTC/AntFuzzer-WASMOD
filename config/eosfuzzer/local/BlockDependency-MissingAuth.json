@@ -1,11 +1,11 @@
 {
   "fuzzers": [
     {
-      "vulnerability": "ForgedNotification",
+      "vulnerability": "BlockDependency-MissingAuth",
       "arg_driver": "local"
     }
   ],
   "has_breakpoint": false,
-  "output_file": "./result/result.json",
+  "output_file": "./result/eosfuzzer/local/BlockDependency-MissingAuth.json",
   "smart_contract_dir": "/root/EOSFuzzer/dataset/contracts"
 }

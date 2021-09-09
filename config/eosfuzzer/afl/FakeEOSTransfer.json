@@ -1,0 +1,11 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "FakeEOSTransfer",
+      "arg_driver": "afl"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/eosfuzzer/afl/FakeEOSTransfer.json",
+  "smart_contract_dir": "/root/EOSFuzzer/dataset/contracts"
+}

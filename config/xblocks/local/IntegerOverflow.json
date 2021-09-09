@@ -1,0 +1,11 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "IntegerOverflow",
+      "arg_driver": "local"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/xblocks/local/IntegerOverflow.json",
+  "smart_contract_dir": "/root/EOSFuzzer/dataset/xblocks/contracts"
+}

@@ -1,11 +1,11 @@
 {
   "fuzzers": [
     {
-      "vulnerability": "ForgedNotification",
+      "vulnerability": "HackRecipient",
       "arg_driver": "local"
     }
   ],
   "has_breakpoint": false,
-  "output_file": "./result/result.json",
+  "output_file": "./result/eosfuzzer/local/HackRecipient.json",
   "smart_contract_dir": "/root/EOSFuzzer/dataset/contracts"
 }

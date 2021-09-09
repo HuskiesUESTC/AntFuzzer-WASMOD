@@ -1,0 +1,11 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "StackOverflow",
+      "arg_driver": "local"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/xblocks/local/StackOverflow.json",
+  "smart_contract_dir": "/root/EOSFuzzer/dataset/xblocks/contracts"
+}

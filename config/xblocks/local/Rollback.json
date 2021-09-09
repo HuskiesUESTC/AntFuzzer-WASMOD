@@ -1,0 +1,11 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "Rollback",
+      "arg_driver": "local"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/xblocks/local/Rollback.json",
+  "smart_contract_dir": "/root/EOSFuzzer/dataset/xblocks/contracts"
+}
