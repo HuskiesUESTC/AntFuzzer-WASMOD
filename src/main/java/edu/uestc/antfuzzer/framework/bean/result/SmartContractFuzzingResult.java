@@ -2,6 +2,7 @@ package edu.uestc.antfuzzer.framework.bean.result;
 
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -16,4 +17,11 @@ public class SmartContractFuzzingResult {
     private int maxCoverage;
     private Map<String, Set<String>> smartContractVulnerableActions;
     private LinkedList<FuzzerFuzzingResult> fuzzers;
+
+    public SmartContractFuzzingResult(String name) {
+        this.name = name;
+        this.startTime = System.currentTimeMillis();
+        this.smartContractVulnerableActions = new HashMap<>();
+        this.fuzzers = new LinkedList<>();
+    }
 }

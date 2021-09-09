@@ -67,7 +67,7 @@ public class InstrumentUtil {
                 wastStream.add(s);
             }
             // 从List构造Wast对象
-            wast = new Wast(wastStream);
+             wast = new Wast(wastStream);
             // 插装
             wastStream = wast.instrument();
 
@@ -141,7 +141,8 @@ public class InstrumentUtil {
         }
 
         public int findFirstFuncStart(List<String> wast) {
-            Pattern funcPattern = Pattern.compile(" {2}\\(func \\$[a-zA-Z0-9]+[\\S\\s]*");
+            // (func $_ZeqRK11checksum160S1_ (param $0 i32) (param $1 i32) (result i32)
+            Pattern funcPattern = Pattern.compile(" {2}\\(func \\$[_a-zA-Z0-9]+[\\S\\s]*");
             for (int i = 0; i < wast.size() - 1; i++) {
                 Matcher funcMatcher = funcPattern.matcher(wast.get(i));
                 if (funcMatcher.matches()) {

@@ -27,7 +27,7 @@ public class SendFuzzingResultToAFL extends AfterCheck {
         // 如果使用AFLDriver的注解，并且真的使用了采取了AFL参数生成器，则开启AFL
         if (environmentUtil.isCurrentActionUsingAFLDriver() && aflUtil.isUsingAFLDriver())
             // 如果使用AFL做为参数生成器驱动的话，需要在fuzz结束的时候将 bitmap、fuzz 结果添加进阻塞队列
-            redisUtil.pushFuzzInfo(new FuzzInfo(environmentUtil.getBitmap(), environmentUtil.getFuzzingStatus(), aflUtil.getTo().getId()));
+            redisUtil.pushFuzzInfo(new FuzzInfo(environmentUtil.getBitmap().getJointBitMap(), environmentUtil.getFuzzingStatus(), aflUtil.getTo().getId()));
         return true;
     }
 }

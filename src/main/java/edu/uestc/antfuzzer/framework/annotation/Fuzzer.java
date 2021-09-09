@@ -19,7 +19,7 @@ public @interface Fuzzer {
 
     String unKnownActionName() default "unKnown";
 
-    boolean useAccountPool() default false;
+    boolean useAccountPool() default true;
 
     ArgDriver argDriver() default ArgDriver.local;
 }

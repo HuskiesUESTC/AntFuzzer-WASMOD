@@ -109,7 +109,7 @@ public class FuzzUtil {
                         System.out.println(smartContractName);
                         System.out.println(fuzzer.getFuzzerInfo().getVulnerability());
                         FuzzingStatus fuzzingStatus = null;
-                        byte[] bitMap = null;
+                        BitMapUtil.BitMap bitMap = null;
                         try {
                             // 为 fuzz 函数注入参数
                             Object[] params = typeUtil.generateFuzzingParams(action, environmentUtil.getCurrentArgumentGenerator(), fuzzParameters);

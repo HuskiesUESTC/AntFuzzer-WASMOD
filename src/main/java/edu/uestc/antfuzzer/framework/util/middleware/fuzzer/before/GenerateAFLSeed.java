@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 @Component
@@ -56,7 +55,7 @@ public class GenerateAFLSeed extends BeforeCheck {
 
             environmentUtil.setAction(action);
             environmentUtil.setLastCoverageChangeTime(0);
-            environmentUtil.setActionFuzzingResult(getActionFuzzingResult(action.getName()));
+            environmentUtil.setActionFuzzingResult(new ActionFuzzingResult(environmentUtil.getSmartContract().getName(), action.getName()));
 
             if (!middlewareUtil.getBeforeActionFuzzingMiddleware().check())
                 continue;
@@ -68,7 +67,7 @@ public class GenerateAFLSeed extends BeforeCheck {
                 continue;
 
             FuzzingStatus fuzzingStatus = null;
-            byte[] bitMap = null;
+            BitMapUtil.BitMap bitMap = null;
             try {
                 // 为 fuzz 函数注入参数
                 Object[] params = typeUtil.generateFuzzingParams(action, environmentUtil.getCurrentArgumentGenerator(), fuzzParameters);
@@ -83,17 +82,10 @@ public class GenerateAFLSeed extends BeforeCheck {
             }
             environmentUtil.setFuzzingStatus(fuzzingStatus);
             environmentUtil.setBitmap(bitMap);
+
+            middlewareUtil.getAfterFuzzingMiddleware().check();
+            middlewareUtil.getAfterActionFuzzingMiddleware().check();
         }
         return true;
-    }
-
-    private ActionFuzzingResult getActionFuzzingResult(String name) {
-        ActionFuzzingResult actionFuzzingResult = new ActionFuzzingResult();
-        actionFuzzingResult.setName(name);
-        actionFuzzingResult.setTime(System.currentTimeMillis());
-        actionFuzzingResult.setInvalidArgumentCount(0);
-        actionFuzzingResult.setCount(-1);
-        actionFuzzingResult.setVulnerability(new HashSet<>());
-        return actionFuzzingResult;
     }
 }

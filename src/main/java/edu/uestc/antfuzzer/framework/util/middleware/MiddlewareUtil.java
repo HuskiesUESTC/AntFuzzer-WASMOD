@@ -22,6 +22,7 @@ import edu.uestc.antfuzzer.framework.util.middleware.fuzzing.after.PrintFuzzingR
 import edu.uestc.antfuzzer.framework.util.middleware.fuzzing.after.SendFuzzingResultToAFL;
 import edu.uestc.antfuzzer.framework.util.middleware.fuzzing.before.CheckTime;
 import edu.uestc.antfuzzer.framework.util.middleware.fuzzing.before.ClearAFLHistoryInfo;
+import edu.uestc.antfuzzer.framework.util.middleware.fuzzing.before.ClearLogFile;
 import edu.uestc.antfuzzer.framework.util.middleware.fuzzing.before.UpdateActionFuzzingResult;
 import edu.uestc.antfuzzer.framework.util.middleware.smartContract.after.RecordFuzzingResult;
 import edu.uestc.antfuzzer.framework.util.middleware.smartContract.after.SetSmartContractFuzzingResult;
@@ -87,11 +88,14 @@ public class MiddlewareUtil {
     private CheckTime checkTime;
     @Autowired
     private ClearAFLHistoryInfo clearAFLHistoryInfo;
+    @Autowired
+    private ClearLogFile clearLogFile;
 
     public Middleware getBeforeFuzzingMiddleware() {
         checkTime
                 .next(updateActionFuzzingResult)
-                .next(clearAFLHistoryInfo);
+                .next(clearAFLHistoryInfo)
+                .next(clearLogFile);
         return checkTime;
     }
 

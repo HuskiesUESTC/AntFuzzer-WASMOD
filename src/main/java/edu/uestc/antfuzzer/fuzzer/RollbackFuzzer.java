@@ -1,36 +1,34 @@
 package edu.uestc.antfuzzer.fuzzer;
 
-import edu.uestc.antfuzzer.framework.annotation.*;
+import edu.uestc.antfuzzer.framework.annotation.Before;
+import edu.uestc.antfuzzer.framework.annotation.Fuzz;
+import edu.uestc.antfuzzer.framework.annotation.Fuzzer;
 import edu.uestc.antfuzzer.framework.bean.config.framework.FrameworkConfig;
 import edu.uestc.antfuzzer.framework.bean.result.ExecuteResult;
 import edu.uestc.antfuzzer.framework.enums.ArgDriver;
 import edu.uestc.antfuzzer.framework.enums.FuzzScope;
 import edu.uestc.antfuzzer.framework.enums.FuzzingStatus;
-import edu.uestc.antfuzzer.framework.enums.ParamType;
 import edu.uestc.antfuzzer.framework.exception.AFLException;
+import edu.uestc.antfuzzer.framework.util.CheckUtil;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Fuzzer(vulnerability = "Rollback",
         fuzzScope = FuzzScope.all,
-        iteration = 500,
+        iteration = 100,
         argDriver = ArgDriver.afl,
         useAccountPool = true
 )
-
 public class RollbackFuzzer extends BaseFuzzer {
     private final String rollbackAgentName = "atkrb";
 
     @Before
     public void init() throws IOException, InterruptedException {
         initFuzzer();
-        startUpEOSToken();
-        opUtil.setOpFilePath("/root/.local/share/eosio/func.txt");
 
         // 部署代理合约
         FrameworkConfig frameworkConfig = configUtil.getFrameworkConfig();
@@ -51,51 +49,41 @@ public class RollbackFuzzer extends BaseFuzzer {
 
     @Fuzz
     public FuzzingStatus fuzz() throws IOException, InterruptedException, AFLException {
-        opUtil.rmOpFile();
         double originalBalance = getCurrentBalance();
         String asset = (String) argumentGenerator.generateSpecialTypeArgument("asset");
         String memo = (String) argumentGenerator.generateSpecialTypeArgument("string");
         cleosUtil.pushAction(
                 rollbackAgentName,
                 "attack",
-                jsonUtil.getJson(
-                        (String) smartContract.getName(),
-                        (String) asset,
-                        (String) memo
-                ),
+                jsonUtil.getJson(smartContract.getName(), asset, memo),
                 rollbackAgentName
         );
         Thread.sleep(200);
-        String args = String.format("cleos push action %s attack \\'[%s %s %s]\\' -p %s", rollbackAgentName,
-                smartContract.getName(), asset, memo, rollbackAgentName);
+
         double currentBalance = getCurrentBalance();
 
-        ExecuteResult checkResult = checkRollback(currentBalance, originalBalance);
-        if (checkResult.getVulDetect()) {
+        boolean result = checkUtil.checkFile(getCheckOperation(currentBalance, originalBalance), "/root/.local/share/eosio/func.txt");
+        if (result) {
             environmentUtil.getActionFuzzingResult().getVulnerability().add("Rollback");
             return FuzzingStatus.SUCCESS;
         }
-        setResultRecord("transfer", "Rollback", checkResult.getVulDetect());
         return FuzzingStatus.NEXT;
     }
 
-    private ExecuteResult checkRollback(double currentBalance, double originalBalance) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(opUtil.getOpFilePath()));
+    private CheckUtil.CheckOperation getCheckOperation(double currentBalance, double originalBalance) {
+        return (reader, args) -> {
             String line = null;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("send_inline")) {
                     successExecCount++;
                     successVulCount++;
-                    return new ExecuteResult(true, currentBalance > originalBalance);
+                    return currentBalance > originalBalance;
                 }
             }
-        } catch (IOException e) {
-            return new ExecuteResult(false, false);
-        }
-        successExecCount++;
-        return new ExecuteResult(true, false);
+            return false;
+        };
     }
+
 
     public double getCurrentBalance() {
         try {

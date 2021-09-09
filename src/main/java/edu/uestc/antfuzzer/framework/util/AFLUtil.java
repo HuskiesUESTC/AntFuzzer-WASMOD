@@ -16,7 +16,6 @@ import lombok.Setter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.logging.Level;
 
 @Component
 public class AFLUtil {
@@ -182,7 +181,7 @@ public class AFLUtil {
                     }
                 }
             } catch (IOException ignored) {}
-            FuzzInfo fuzzInfo = new FuzzInfo(environmentUtil.getBitmap(), FuzzingStatus.NEXT, to.id);
+            FuzzInfo fuzzInfo = new FuzzInfo(environmentUtil.getBitmap().getJointBitMap(), FuzzingStatus.NEXT, to.id);
             redisUtil.pushFuzzInfo(fuzzInfo);
             threadUtil.waitFor(50);
         }

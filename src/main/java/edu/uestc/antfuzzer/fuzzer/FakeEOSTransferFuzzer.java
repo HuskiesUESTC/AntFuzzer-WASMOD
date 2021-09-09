@@ -9,7 +9,7 @@ import edu.uestc.antfuzzer.framework.enums.FuzzScope;
 import edu.uestc.antfuzzer.framework.enums.FuzzingStatus;
 import edu.uestc.antfuzzer.framework.enums.ParamType;
 import edu.uestc.antfuzzer.framework.exception.AFLException;
-import edu.uestc.antfuzzer.framework.util.FileUtil;
+import edu.uestc.antfuzzer.framework.util.CheckUtil;
 
 import java.io.IOException;
 
@@ -22,13 +22,12 @@ import java.io.IOException;
 public class FakeEOSTransferFuzzer extends BaseFuzzer {
     private final String fakeTransferAgentName = "atknoti";
 
-    private FileUtil.CheckOperation checkOperation;
+    private CheckUtil.CheckOperation checkOperation;
 
     @Before
     public boolean init() throws IOException, InterruptedException {
         initFuzzer();
         // 部署代理合约
-        startUpEOSToken();
         cleosUtil.createAccount(fakeTransferAgentName, configUtil.getFrameworkConfig().getAccount().getPublicKey());
         cleosUtil.setContract(fakeTransferAgentName, configUtil.getFrameworkConfig().getSmartContracts().getAtknoti());
         cleosUtil.addCodePermission(fakeTransferAgentName);
@@ -40,8 +39,6 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
     public FuzzingStatus fuzz(@Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
         // 调用代理合约
         if (canAcceptEOS) {
-            opUtil.rmOpFile();
-            clearLogFiles();
             cleosUtil.pushAction(
                     fakeTransferAgentName,
                     "transfer",
@@ -51,18 +48,18 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
                             (String) argumentGenerator.generateSpecialTypeArgument("asset"),
                             (String) argumentGenerator.generateSpecialTypeArgument("string")
                     ),
-                    "eosio");
+                    fakeTransferAgentName);
             // 检测opt.txt
-            if (fileUtil.checkFile(getCheckOperation(), opUtil.getOpFilePath())) {
+            if (checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath())) {
                 environmentUtil.getActionFuzzingResult().getVulnerability().add("FakeEOSTransfer");
+                checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath());
                 return FuzzingStatus.SUCCESS;
             }
-            setResultRecord(action, "FakeEOSTransfer", false);
         }
         return FuzzingStatus.NEXT;
     }
 
-    private FileUtil.CheckOperation getCheckOperation() {
+    private CheckUtil.CheckOperation getCheckOperation() {
         if (checkOperation == null) {
             checkOperation = (reader, args) -> {
                 String target = "CallIndirect";

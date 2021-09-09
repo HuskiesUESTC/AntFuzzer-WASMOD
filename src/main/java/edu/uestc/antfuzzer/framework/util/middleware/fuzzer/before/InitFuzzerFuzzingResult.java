@@ -17,12 +17,8 @@ public class InitFuzzerFuzzingResult extends BeforeCheck  {
 
     @Override
     protected boolean currentCheck() {
-        FuzzerFuzzingResult fuzzerFuzzingResult = new FuzzerFuzzingResult();
-        fuzzerFuzzingResult.setName(environmentUtil.getFuzzer().getFuzzerInfo().getVulnerability());
-        fuzzerFuzzingResult.setActions(new LinkedList<>());
-        fuzzerFuzzingResult.setStartTime(System.currentTimeMillis());
-        fuzzerFuzzingResult.setFuzzerVulnerableActions(new HashMap<>());
-        environmentUtil.setFuzzerFuzzingResult(fuzzerFuzzingResult);
+        String name = environmentUtil.getFuzzer().getFuzzerInfo().getVulnerability();
+        environmentUtil.setFuzzerFuzzingResult(new FuzzerFuzzingResult(name));
         return true;
     }
 }

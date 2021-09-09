@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
         argDriver = ArgDriver.local,
         useAccountPool = true
 )
-
 public class IntegerOverflowFuzzer extends BaseFuzzer {
     @Autowired
     ArgumentGenerator argumentGenerator;
@@ -57,7 +56,6 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
     @Before
     public void init() throws IOException, InterruptedException {
         initFuzzer();
-        startUpEOSToken();
         argumentGenerator = typeUtil.getGenerator(smartContract);
         canAcceptEOS = canAcceptEOS();
     }
@@ -65,8 +63,6 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
     @Fuzz
     public FuzzingStatus fuzz(@Param(ParamType.Arguments) String arguments,
                               @Param(ParamType.Action) String action) throws IOException, InterruptedException {
-        clearLogFiles();
-
         Action nextAction = getRandomAction();
         if (nextAction != null) {
             System.out.println(nextAction.getName());
@@ -90,14 +86,14 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
             }
         }
 
-        clearLogFiles();
+        fileUtil.rmLogFiles();
         if (canAcceptEOS) {
             int64Pool.clear();
             int32Pool.clear();
             uint32Pool.clear();
             uint64Pool.clear();
             assetPool.clear();
-            clearLogFiles();
+            fileUtil.rmLogFiles();
             String asset = (String) argumentGenerator.generateSpecialTypeArgument("asset");
             String memo = (String) argumentGenerator.generateSpecialTypeArgument("string");
             Pattern assetPattern = Pattern.compile("(\\d+).(\\d+) (\\S+)");
@@ -132,7 +128,7 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
 
     private ExecuteResult checkOverflow() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(opUtil.getOpFilePath()));
+            BufferedReader reader = new BufferedReader(new FileReader(fileUtil.getOpFilepath()));
             List<String> op = new ArrayList<>();
             String line = null;
             while ((line = reader.readLine()) != null) {
@@ -581,7 +577,6 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
             }
         }
     }
-
 
     private Binop<BigInteger> resolve(String opString) {
         Pattern opPattern = PatternGenerator.generatePattern(opString);

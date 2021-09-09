@@ -7,8 +7,7 @@ import edu.uestc.antfuzzer.framework.enums.FuzzingStatus;
 import edu.uestc.antfuzzer.framework.enums.ParamType;
 import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.type.NameGenerator;
-import edu.uestc.antfuzzer.framework.util.FileUtil;
-import edu.uestc.antfuzzer.framework.util.OpUtil;
+import edu.uestc.antfuzzer.framework.util.CheckUtil;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -22,9 +21,7 @@ import java.io.IOException;
 public class HackRecipientFuzzer extends BaseFuzzer {
     @Before
     public void init() throws IOException, InterruptedException {
-        opUtil.setOpFilePath("/root/.local/share/eosio/func.txt");
         initFuzzer();
-        startUpEOSToken();
         // 部署测试账号
         cleosUtil.createAccount("eidosatk", configUtil.getFrameworkConfig().getAccount().getPublicKey());
         cleosUtil.addCodePermission("eidosatk");
@@ -35,9 +32,8 @@ public class HackRecipientFuzzer extends BaseFuzzer {
     @Fuzz
     public FuzzingStatus fuzz(@Param(ParamType.Arguments) String arguments,
                               @Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
-        clearLogFiles();
-        // fuzz
         NameGenerator nameGenerator = (NameGenerator) argumentGenerator.getTypeGeneratorCollection().get("name");
+
         cleosUtil.pushAction(
                 smartContract.getName(),
                 action,
@@ -49,10 +45,9 @@ public class HackRecipientFuzzer extends BaseFuzzer {
             environmentUtil.getActionFuzzingResult().getVulnerability().add("HackRecipient");
             return FuzzingStatus.SUCCESS;
         }
-        setResultRecord(action, "HackRecipient", checkResult.getVulDetect(), arguments, "");
 
         if (canAcceptEOS) {
-            clearLogFiles();
+            fileUtil.rmLogFiles();
             cleosUtil.pushAction(
                     "eosio.token",
                     "transfer",
@@ -69,7 +64,6 @@ public class HackRecipientFuzzer extends BaseFuzzer {
                 environmentUtil.getActionFuzzingResult().getVulnerability().add("HackRecipient");
                 return FuzzingStatus.SUCCESS;
             }
-            setResultRecord("transfer", "HackRecipient", checkResult.getVulDetect());
         }
         return FuzzingStatus.NEXT;
     }
@@ -77,7 +71,7 @@ public class HackRecipientFuzzer extends BaseFuzzer {
 
     private ExecuteResult checkHackRecipient() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(opUtil.getOpFilePath()));
+            BufferedReader reader = new BufferedReader(new FileReader("/root/.local/share/eosio/func.txt"));
             String line = null;
             boolean signedTransaction = false;
             boolean sentTransaction = false;
@@ -103,32 +97,29 @@ public class HackRecipientFuzzer extends BaseFuzzer {
     /**
      * analyse
      */
-    private FileUtil.CheckOperation getCheckOperation() {
+    private CheckUtil.CheckOperation getCheckOperation() {
         // 使用了get_self()为action签名
         // 使用send_deferred()发送action
         // 使用require_recipient()将回执发给使用者
-        return new FileUtil.CheckOperation() {
-            @Override
-            public boolean checkAllLines(BufferedReader reader, Object... args) throws IOException {
-                try {
-                    String line = null;
-                    boolean signedTransaction = false;
-                    boolean sentTransaction = false;
-                    boolean sentRecipient = false;
-                    while ((line = reader.readLine()) != null) {
-                        if ((line.contains("send_deferred") || line.contains("send_inline")) && line.contains(smartContract.getName())) {
-                            signedTransaction = true;
-                            sentTransaction = true;
-                        }
-
-                        if (line.startsWith(smartContract.getName()) && line.contains("require_recipient")) {
-                            sentRecipient = true;
-                        }
+        return (reader, args) -> {
+            try {
+                String line = null;
+                boolean signedTransaction = false;
+                boolean sentTransaction = false;
+                boolean sentRecipient = false;
+                while ((line = reader.readLine()) != null) {
+                    if ((line.contains("send_deferred") || line.contains("send_inline")) && line.contains(smartContract.getName())) {
+                        signedTransaction = true;
+                        sentTransaction = true;
                     }
-                    return signedTransaction && sentTransaction && sentRecipient;
-                } catch (IOException e) {
-                    return false;
+
+                    if (line.startsWith(smartContract.getName()) && line.contains("require_recipient")) {
+                        sentRecipient = true;
+                    }
                 }
+                return signedTransaction && sentTransaction && sentRecipient;
+            } catch (IOException e) {
+                return false;
             }
         };
     }

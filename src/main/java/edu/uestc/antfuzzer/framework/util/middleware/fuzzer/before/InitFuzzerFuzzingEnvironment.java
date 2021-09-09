@@ -34,9 +34,6 @@ public class InitFuzzerFuzzingEnvironment extends BeforeCheck {
     private TypeUtil typeUtil;
 
     @Autowired
-    private OpUtil opUtil;
-
-    @Autowired
     private LogUtil logUtil;
 
     private SmartContract smartContract;
@@ -53,7 +50,6 @@ public class InitFuzzerFuzzingEnvironment extends BeforeCheck {
                 injectObjectIntoFuzzer() && // 为fuzzer注入参数
                 setCurrentArgumentGenerator() && // 设置参数生成器
                 setEnvironmentArguments() && // 设置环境变量
-                setDefaultOpFilePath() && // 设置默认的 opFilePath
                 executeFuzzerBeforeMethod(); // 执行before
     }
 
@@ -126,14 +122,6 @@ public class InitFuzzerFuzzingEnvironment extends BeforeCheck {
         environmentUtil.setCurrentActionUsingAFLDriver(fuzzerInfo.getArgDriver() == ArgDriver.afl);
         // 记录当前fuzzer需要fuzzing的次数
         environmentUtil.setCurrentActionTotalFuzzingCount(fuzzerInfo.getIteration());
-        return true;
-    }
-
-    /**
-     * 设置默认的 opFilePath
-     */
-    private boolean setDefaultOpFilePath() {
-        opUtil.setDefaultOpFilePath(); // 设置默认的op文件路径
         return true;
     }
 

@@ -38,7 +38,7 @@ public class EnvironmentUtil {
     // 函数
     private ActionFuzzingResult actionFuzzingResult;
     // bitmap
-    private byte[] bitmap;
+    private BitMapUtil.BitMap bitmap;
 
     // 当前合约函数测试的结果
     private FuzzingStatus fuzzingStatus;

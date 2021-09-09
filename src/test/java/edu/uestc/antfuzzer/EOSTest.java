@@ -30,7 +30,7 @@ public class EOSTest {
             configUtil.loadConfig();
             // 解析命令行输入的参数
             InputArgumentUtil inputArgumentUtil = beanFactory.getComponent(InputArgumentUtil.class);
-            String[] args = new String[]{"-fuzzingConfigFile", "./Test.json"};
+            String[] args = new String[]{"-fuzzingConfigFile", "./config/test.json"};
             inputArgumentUtil.parseCommand(args);
             // 获取fuzzer
             configUtil.loadFuzzer(beanFactory.getFuzzers());

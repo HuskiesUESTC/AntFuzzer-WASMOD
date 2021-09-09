@@ -10,7 +10,7 @@ import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.type.ArgumentGenerator;
 import edu.uestc.antfuzzer.framework.util.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -30,17 +30,15 @@ public class BaseFuzzer {
     @Autowired
     PipeUtil pipeUtil;
     @Autowired
-    OpUtil opUtil;
-    @Autowired
     LogUtil logUtil;
     @Autowired
     JsonUtil jsonUtil;
     @Autowired
-    SmartContractUtil smartContractUtil;
-    @Autowired
     EnvironmentUtil environmentUtil;
     @Autowired
     FileUtil fileUtil;
+    @Autowired
+    CheckUtil checkUtil;
 
     // 参数生成器
     ArgumentGenerator argumentGenerator;
@@ -58,72 +56,48 @@ public class BaseFuzzer {
     /**
      * 初始化参数生成器和cleos工具
      */
-    public void initFuzzer() {
+    public void initFuzzer() throws IOException, InterruptedException {
         argumentGenerator = typeUtil.getGenerator(smartContract);
         cleosUtil = eosUtil.getCleosUtil();
+        // 解锁钱包
+        cleosUtil.unlockWallet(configUtil.getFrameworkConfig().getAccount().getPrivateKey());
+        // 分配代币
+        eosUtil.setUpEOSToken(smartContract.getName());
     }
 
-    /**
-     * 初始化智能合约并分发测试使用的代币
-     */
-    public void initSmartContract() throws IOException, InterruptedException {
-        // 部署智能合约
-        String contractDir = configUtil.getFuzzingConfig().getSmartContractDir() + "/" + smartContract.getName();
-        EOSUtil.CleosUtil cleosUtil = eosUtil.getCleosUtil();
-//        cleosUtil.createAccount(smartContract.getName(), configUtil.getAccountPublicKey());
-        cleosUtil.setContract(smartContract.getName(), contractDir);
-//        cleosUtil.addCodePermission(smartContract.getName());
-        // 初始化EOS
-        startUpEOSToken();
-    }
-
-    /**
-     * 为测试账户分发代币
-     */
-    public void startUpEOSToken() throws IOException, InterruptedException {
-        EOSUtil.CleosUtil cleosUtil = eosUtil.getCleosUtil();
-        cleosUtil.pushAction(
-                "eosio.token",
-                "issue",
-                jsonUtil.getJson(
-                        (String) "eosio",
-                        (String) "100000000.0000 EOS",
-                        (String) "start up"
-                ),
-                "eosio"
-        );
-
-        cleosUtil.pushAction(
-                "eosio.token",
-                "transfer",
-                jsonUtil.getJson(
-                        (String) "eosio",
-                        (String) smartContract.getName(),
-                        (String) "10000000.0000 EOS",
-                        (String) "fuzzer"
-                ),
-                "eosio"
-        );
-    }
-
-    /**
-     * 随机执行一个action
-     */
-    public void pushRandomAction() throws IOException, InterruptedException, AFLException {
-        Action actionToPush = getRandomAction();
-        if (actionToPush == null) {
-            return;
-        }
-        EOSUtil.CleosUtil cleosUtil = eosUtil.getCleosUtil();
-        ArgumentGenerator argumentGenerator = typeUtil.getGenerator(smartContract);
-        String args = argumentGenerator.generateFuzzingArguments(actionToPush);
-        cleosUtil.pushAction(
-                smartContract.getName(),
-                actionToPush.getName(),
-                args,
-                "eosio"
-        );
-    }
+//    /**
+//     * 初始化智能合约并分发测试使用的代币
+//     */
+//    public void initSmartContract() throws IOException, InterruptedException {
+//        // 部署智能合约
+//        cleosUtil.unlockWallet(configUtil.getFrameworkConfig().getAccount().getPrivateKey());
+//        String contractDir = configUtil.getFuzzingConfig().getSmartContractDir() + "/" + smartContract.getName();
+//        EOSUtil.CleosUtil cleosUtil = eosUtil.getCleosUtil();
+////        cleosUtil.createAccount(smartContract.getName(), configUtil.getAccountPublicKey());
+//        cleosUtil.setContract(smartContract.getName(), contractDir);
+////        cleosUtil.addCodePermission(smartContract.getName());
+//        // 初始化EOS
+//        startUpEOSToken();
+//    }
+//
+//    /**
+//     * 随机执行一个action
+//     */
+//    public void pushRandomAction() throws IOException, InterruptedException, AFLException {
+//        Action actionToPush = getRandomAction();
+//        if (actionToPush == null) {
+//            return;
+//        }
+//        EOSUtil.CleosUtil cleosUtil = eosUtil.getCleosUtil();
+//        ArgumentGenerator argumentGenerator = typeUtil.getGenerator(smartContract);
+//        String args = argumentGenerator.generateFuzzingArguments(actionToPush);
+//        cleosUtil.pushAction(
+//                smartContract.getName(),
+//                actionToPush.getName(),
+//                args,
+//                "eosio"
+//        );
+//    }
 
     public Action getRandomAction() {
         Random random = new Random();
@@ -149,12 +123,7 @@ public class BaseFuzzer {
         cleosUtil.pushAction(
                 "eosio.token",
                 "transfer",
-                jsonUtil.getJson(
-                        (String) from,
-                        (String) to,
-                        (String) asset,
-                        (String) memo
-                ),
+                jsonUtil.getJson(from, to, asset, memo),
                 from
         );
     }
@@ -168,68 +137,12 @@ public class BaseFuzzer {
         String action = String.format("cleos push action eosio.token transfer \\'[%s, %s, %s, %s]\\'", from, to, asset, memo);
         if (memoStringPool.size() != 0) {
             Random random = new Random();
-            memo = (String) memoStringPool.get(Math.abs(random.nextInt()) % memoStringPool.size());
+            memo = memoStringPool.get(Math.abs(random.nextInt()) % memoStringPool.size());
             transfer(from, to, asset, memo);
             return action;
         }
         transfer(from, to, asset, memo);
         return action;
-    }
-
-    public void setResultRecord(String actionName, String vulnerability, boolean checkResult) {
-        String format = "contract: %s,\n" +
-                "function: %s, \n" +
-                "vulnerability: %s, \n" +
-                "fuzz: %s\n";
-        if (checkResult) {
-            System.out.println(String.format(format, smartContract.getName(), actionName, vulnerability, "success"));
-            Map<String, List<String>> result = smartContract.getResult();
-            if (result == null)
-                result = new HashMap<>();
-            List<String> record = result.get(actionName);
-            if (record == null)
-                record = new ArrayList<>();
-            record.add(vulnerability);
-            result.put(actionName, record);
-            smartContract.setResult(result);
-        } else {
-            System.out.println(String.format(format, smartContract.getName(), actionName, vulnerability, "failed"));
-        }
-    }
-
-    public void setResultRecord(String actionName, String vulnerability, boolean checkResult, String successCase, String info) {
-        String format = "contract: %s,\n" +
-                "function: %s, \n" +
-                "vulnerability: %s, \n" +
-                "fuzz: %s\n";
-        if (checkResult) {
-            System.out.println(String.format(format, smartContract.getName(), actionName, vulnerability, "success"));
-            Map<String, List<String>> result = smartContract.getResult();
-            if (result == null)
-                result = new HashMap<>();
-            List<String> record = result.get(actionName);
-            if (record == null)
-                record = new ArrayList<>();
-            record.add(vulnerability);
-            record.add(successCase);
-            record.add(info);
-            result.put(actionName, record);
-            smartContract.setResult(result);
-        } else {
-            System.out.println(String.format(format, smartContract.getName(), actionName, vulnerability, "failed"));
-        }
-    }
-
-    public void clearLogFiles() {
-        File rootDir = new File("/root/.local/share/eosio");
-        if (rootDir.exists() && rootDir.isDirectory()) {
-            File[] files = rootDir.listFiles((dir, name) -> name.endsWith("txt") && !name.equals("coverage.txt"));
-            if (files != null && files.length > 0) {
-                for (File file : files) {
-                    file.delete();
-                }
-            }
-        }
     }
 
     /**
@@ -258,13 +171,12 @@ public class BaseFuzzer {
 
     /**
      * 测试被测合约能否接受EOS转账
-     *
      * @return true if it can
      */
     public boolean canAcceptEOS() {
         // 测试是否能接收EOS
         try {
-            clearLogFiles();
+            fileUtil.rmLogFiles();
             cleosUtil.pushAction(
                     "eosio.token",
                     "transfer",
@@ -276,39 +188,10 @@ public class BaseFuzzer {
                     ),
                     "eosio"
             );
-            BufferedReader opTxt = new BufferedReader(new FileReader(configUtil.getFrameworkConfig().getEosio().getOpFilepath()));
-            String line = null;
-            int callIndirectCount = 0;
-            while ((line = opTxt.readLine()) != null) {
-                if (line.contains("CallIndirect") && (++callIndirectCount == 2)) {
-                    return true;
-                }
-            }
-            opTxt.close();
-        } catch (Exception e) {
+            String filepath = configUtil.getFrameworkConfig().getEosio().getOpFilepath();
+            return checkUtil.checkFile(checkUtil.getAcceptEOSTokenCheckOperation(smartContract), filepath);
+        } catch (IOException | InterruptedException | AFLException exception) {
             return false;
         }
-        return false;
-    }
-
-    void writeResultToFile() throws IOException {
-        File reportDir = null;
-        // 为每个合约的报告创建文件夹
-        reportDir = new File("reports");
-        if (!reportDir.exists()) {
-            reportDir.mkdirs();
-        }
-        BufferedWriter out = new BufferedWriter(new FileWriter("reports/" + smartContract.getName() + ".txt", true));
-        Map<String, List<String>> result = smartContract.getResult();
-        for (Map.Entry<String, List<String>> elm : result.entrySet()) {
-            String action = elm.getKey();
-            if (action == null) {
-                continue;
-            }
-            String vulnerability = elm.getValue().get(0);
-        }
-        out.write("---------------------------------------\n");
-        out.write("---------------------------------------\n");
-        out.close();
     }
 }

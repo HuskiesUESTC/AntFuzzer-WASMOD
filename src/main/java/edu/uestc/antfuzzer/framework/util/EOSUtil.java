@@ -59,7 +59,7 @@ public class EOSUtil {
                 "create",
                 jsonUtil.getJson(
                         "eosio",
-                        "1000000000.0000 EOS"),
+                        "1000000000000.0000 EOS"),
                 "eosio.token");
 
         // 初始化用户池
@@ -72,21 +72,32 @@ public class EOSUtil {
             accountPool.add(new Account("fuzzacc2", accountPublicKey));
             accountPool.add(new Account("fuzzacc3", accountPublicKey));
         }
-
         // 部署测试合约
         if (contractName != null && !contractName.trim().equalsIgnoreCase("")) {
             cleosUtil.createAccount(contractName, accountPublicKey);
             cleosUtil.pushAction(
                     "eosio.token",
                     "issue",
-                    jsonUtil.getJson(
-                            contractName,
-                            "10000000.0000 EOS",
-                            "FUZZER"),
+                    jsonUtil.getJson(contractName, "1000000000.0000 EOS", "fuzzer"),
                     "eosio");
             cleosUtil.setContract(contractName, configUtil.getFuzzingConfig().getSmartContractDir() + "/" + contractName);
             cleosUtil.addCodePermission(contractName);
         }
+    }
+
+    public void setUpEOSToken(String smartContract) throws IOException, InterruptedException {
+        cleosUtil.pushAction(
+                "eosio.token",
+                "issue",
+                jsonUtil.getJson("eosio", "10000000000.0000 EOS", "fuzzer"),
+                "eosio");
+
+        cleosUtil.pushAction(
+                "eosio.token",
+                "transfer",
+                jsonUtil.getJson("eosio", smartContract, "1000000000.0000 EOS", "fuzzer"),
+                "eosio"
+        );
     }
 
     public class CppUtil {

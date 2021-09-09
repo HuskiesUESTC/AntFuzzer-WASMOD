@@ -1,0 +1,23 @@
+{
+  "fuzzing_config_file": "./config/test.json",
+  "default_output_file": "./result.json",
+  "default_smart_contract_dir": "/root/EOSFuzzer/dataset/xblocks/contracts",
+  "eos_token_public_key": "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
+  "account": {
+    "public_key": "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
+    "private_key": "PW5JgqKiuHabvuvJD7VmfY94EMJZ72gvtMfnB1kkxPXHU54NpU3Cp"
+  },
+  "nodeos_start_shell": "./script/start.sh",
+  "smart_contracts": {
+    "atkforg": "./src/main/resources/agents/atkforg/",
+    "atknoti": "./src/main/resources/agents/atknoti/",
+    "atkrb": "./src/main/resources/agents/atkrb/",
+    "akrero": "./src/main/resources/agents/atkrero/",
+    "eosio_token": "/root/eos/build/contracts/eosio.token/"
+  },
+  "eosio": {
+    "op_filepath": "/root/.local/share/eosio/op.txt",
+    "coverage_filepath": "/root/.local/share/eosio/coverage.txt"
+  },
+  "log_dir": "./log"
+}

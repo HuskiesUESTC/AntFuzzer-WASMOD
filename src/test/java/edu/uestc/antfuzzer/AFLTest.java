@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -101,7 +102,7 @@ public class AFLTest {
 
         RedisUtil redisUtil = beanFactory.getComponent(RedisUtil.class);
         ActionFuzzingResult actionFuzzingResult = environmentUtil.getActionFuzzingResult();
-        byte[] bitmap = new byte[65536];
+        BitMapUtil.BitMap bitMap = new BitMapUtil.BitMap(new byte[65535], new HashMap<>());
         for (int i = 0; i < 2000; i++) {
             actionFuzzingResult.setCount(i + 1);
 
@@ -110,9 +111,9 @@ public class AFLTest {
             float32Generator.generate();
 
             aflUtil.clearArguments();
-            bitmap[random.nextInt(65536)] = 1;
-            environmentUtil.setBitmap(bitmap);
-            redisUtil.pushFuzzInfo(new FuzzInfo(bitmap, FuzzingStatus.NEXT, aflUtil.getTo().getId()));
+            bitMap.getJointBitMap()[random.nextInt(65536)] = 1;
+            environmentUtil.setBitmap(bitMap);
+            redisUtil.pushFuzzInfo(new FuzzInfo(bitMap.getJointBitMap(), FuzzingStatus.NEXT, aflUtil.getTo().getId()));
         }
 
         aflUtil.endAFL();
@@ -173,7 +174,7 @@ public class AFLTest {
 
         environmentUtil.setActionFuzzingResult(actionFuzzingResult1);
         RedisUtil redisUtil = beanFactory.getComponent(RedisUtil.class);
-        byte[] bitmap = new byte[65536];
+        BitMapUtil.BitMap bitMap = new BitMapUtil.BitMap(new byte[65535], new HashMap<>());
         // 启动afl
         aflUtil.switchAFL();
         for (int i = 0; i < 1000; i++) {
@@ -185,9 +186,9 @@ public class AFLTest {
             float32Generator1.generate();
 
             aflUtil.clearArguments();
-            bitmap[random.nextInt(65536)] = 1;
-            environmentUtil.setBitmap(bitmap);
-            redisUtil.pushFuzzInfo(new FuzzInfo(bitmap, FuzzingStatus.NEXT, aflUtil.getTo().getId()));
+            bitMap.getJointBitMap()[random.nextInt(65536)] = 1;
+            environmentUtil.setBitmap(bitMap);
+            redisUtil.pushFuzzInfo(new FuzzInfo(bitMap.getJointBitMap(), FuzzingStatus.NEXT, aflUtil.getTo().getId()));
         }
 
         // 切换afl
@@ -196,7 +197,7 @@ public class AFLTest {
 
         environmentUtil.setActionFuzzingResult(actionFuzzingResult2);
         aflUtil.switchAFL();
-        bitmap = new byte[65536];
+        bitMap = new BitMapUtil.BitMap(new byte[65535], new HashMap<>());
         actionFuzzingResult2 = environmentUtil.getActionFuzzingResult();
         aflUtil.clearArguments();
 
@@ -211,9 +212,9 @@ public class AFLTest {
             stringGenerator2b.generate();
 
             aflUtil.clearArguments();
-            bitmap[random.nextInt(65536)] = 1;
-            environmentUtil.setBitmap(bitmap);
-            redisUtil.pushFuzzInfo(new FuzzInfo(bitmap, FuzzingStatus.NEXT, aflUtil.getTo().getId()));
+            bitMap.getJointBitMap()[random.nextInt(65536)] = 1;
+            environmentUtil.setBitmap(bitMap);
+            redisUtil.pushFuzzInfo(new FuzzInfo(bitMap.getJointBitMap(), FuzzingStatus.NEXT, aflUtil.getTo().getId()));
         }
 
         aflUtil.endAFL();
@@ -288,7 +289,7 @@ public class AFLTest {
 
 
         RedisUtil redisUtil = beanFactory.getComponent(RedisUtil.class);
-        byte[] bitmap = new byte[65536];
+        BitMapUtil.BitMap bitMap = new BitMapUtil.BitMap(new byte[65535], new HashMap<>());
 
         // 设置当前与下一个参数生成器列表
         environmentUtil.setCurrentAFLGeneratorInfoCollection(firstAFLGeneratorInfoCollection);
@@ -307,13 +308,13 @@ public class AFLTest {
             float32Generator1.generate();
 
             aflUtil.clearArguments();
-            bitmap[random.nextInt(65536)] = 1;
-            environmentUtil.setBitmap(bitmap);
-            redisUtil.pushFuzzInfo(new FuzzInfo(bitmap, FuzzingStatus.NEXT, aflUtil.getTo().getId()));
+            bitMap.getJointBitMap()[random.nextInt(65536)] = 1;
+            environmentUtil.setBitmap(bitMap);
+            redisUtil.pushFuzzInfo(new FuzzInfo(bitMap.getJointBitMap(), FuzzingStatus.NEXT, aflUtil.getTo().getId()));
         }
 
         // 切换afl
-        bitmap = new byte[65536];
+        bitMap = new BitMapUtil.BitMap(new byte[65535], new HashMap<>());
 
         environmentUtil.setCurrentAFLGeneratorInfoCollection(secondAFLGeneratorInfoCollection);
         environmentUtil.setNextAFLGeneratorInfoCollection(thirdAFLGeneratorInfoCollection);
@@ -335,13 +336,13 @@ public class AFLTest {
             stringGenerator2b.generate();
 
             aflUtil.clearArguments();
-            bitmap[random.nextInt(65536)] = 1;
-            environmentUtil.setBitmap(bitmap);
-            redisUtil.pushFuzzInfo(new FuzzInfo(bitmap, FuzzingStatus.NEXT, aflUtil.getTo().getId()));
+            bitMap.getJointBitMap()[random.nextInt(65536)] = 1;
+            environmentUtil.setBitmap(bitMap);
+            redisUtil.pushFuzzInfo(new FuzzInfo(bitMap.getJointBitMap(), FuzzingStatus.NEXT, aflUtil.getTo().getId()));
         }
 
         // 切换afl
-        bitmap = new byte[65536];
+        bitMap = new BitMapUtil.BitMap(new byte[65535], new HashMap<>());
 
         environmentUtil.setCurrentAFLGeneratorInfoCollection(thirdAFLGeneratorInfoCollection);
         environmentUtil.setNextAFLGeneratorInfoCollection(null);
@@ -363,9 +364,9 @@ public class AFLTest {
             float32Generator3.generate();
 
             aflUtil.clearArguments();
-            bitmap[random.nextInt(65536)] = 1;
-            environmentUtil.setBitmap(bitmap);
-            redisUtil.pushFuzzInfo(new FuzzInfo(bitmap, FuzzingStatus.NEXT, aflUtil.getTo().getId()));
+            bitMap.getJointBitMap()[random.nextInt(65536)] = 1;
+            environmentUtil.setBitmap(bitMap);
+            redisUtil.pushFuzzInfo(new FuzzInfo(bitMap.getJointBitMap(), FuzzingStatus.NEXT, aflUtil.getTo().getId()));
         }
 
         aflUtil.endAFL();

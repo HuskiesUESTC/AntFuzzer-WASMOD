@@ -88,6 +88,45 @@ public class FileUtil {
     }
 
     /**
+     * 删除文件
+     */
+    public void delete(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    public String getOpFilepath() {
+        return configUtil.getFrameworkConfig().getEosio().getOpFilepath();
+    }
+
+    /**
+     * 删除op
+     */
+    public void rmOpFile() throws IOException {
+        File file = new File(getOpFilepath());
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    /**
+     * 删除除了 coverage 外的日志文件
+     */
+    public void rmLogFiles() {
+        File rootDir = new File("/root/.local/share/eosio");
+        if (rootDir.exists() && rootDir.isDirectory()) {
+            File[] files = rootDir.listFiles((dir, name) -> name.endsWith("txt"));
+            if (files != null && files.length > 0) {
+                for (File file : files) {
+                    file.delete();
+                }
+            }
+        }
+    }
+
+    /**
      * 读资源文件
      */
     public String readRecourse(String filename) throws IOException {
@@ -97,27 +136,5 @@ public class FileUtil {
         }
         String filepath = url.getPath();
         return read(filepath);
-    }
-
-    public boolean checkFile(CheckOperation checkOperation, String filepath, Object... objects) throws IOException, InterruptedException {
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            File file = new File(filepath);
-            if (file.exists()) {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
-                boolean result = checkOperation.checkAllLines(reader, objects);
-                reader.close();
-                return result;
-            }
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - startTime > 100) {
-                return false;
-            }
-            threadUtil.waitFor(50);
-        }
-    }
-
-    public interface CheckOperation {
-        boolean checkAllLines(BufferedReader reader, Object... args) throws IOException;
     }
 }

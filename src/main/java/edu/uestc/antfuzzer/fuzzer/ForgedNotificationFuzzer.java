@@ -11,8 +11,8 @@ import edu.uestc.antfuzzer.framework.enums.FuzzingStatus;
 import edu.uestc.antfuzzer.framework.enums.ParamType;
 import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.type.ArgumentGenerator;
+import edu.uestc.antfuzzer.framework.util.CheckUtil;
 import edu.uestc.antfuzzer.framework.util.EOSUtil;
-import edu.uestc.antfuzzer.framework.util.FileUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,12 +28,11 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
     private final String forgedNotificationAgentName = "atkforg";
     private final String forgedNotificationTokenFromName = "atkforgfrom";
 
-    private FileUtil.CheckOperation checkOperation;
+    private CheckUtil.CheckOperation checkOperation;
 
     @Before
     public boolean init() throws IOException, InterruptedException {
         initFuzzer();
-        startUpEOSToken();
         EOSUtil.CppUtil cppUtil = eosUtil.getCppUtil();
 
         FrameworkConfig.Account account = configUtil.getFrameworkConfig().getAccount();
@@ -60,9 +59,6 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
     @Fuzz
     public FuzzingStatus fuzz(@Param(ParamType.Action) String action,
                               @Param(ParamType.ArgGenerator) ArgumentGenerator argumentGenerator) throws IOException, InterruptedException, AFLException {
-        // 删除opt.txt相关文件
-        opUtil.rmOpFile();
-        clearLogFiles();
         // 调用代理合约
         cleosUtil.pushAction(
                 "eosio.token",
@@ -75,19 +71,18 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
                 forgedNotificationTokenFromName);
 
         // 检测opt.txt
-        boolean checkResult = fileUtil.checkFile(getCheckOperation(), opUtil.getOpFilePath());
+        boolean checkResult = checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath());
         if (checkResult) {
             environmentUtil.getActionFuzzingResult().getVulnerability().add("ForgedNotification");
             return FuzzingStatus.SUCCESS;
         }
-        setResultRecord(action, "ForgedNotificationFuzzer", false);
         return FuzzingStatus.NEXT;
     }
 
 
-    private FileUtil.CheckOperation getCheckOperation() {
+    private CheckUtil.CheckOperation getCheckOperation() {
         if (checkOperation == null) {
-            checkOperation = new FileUtil.CheckOperation() {
+            checkOperation = new CheckUtil.CheckOperation() {
                 @Override
                 public boolean checkAllLines(BufferedReader reader, Object... args) throws IOException {
                     String target = "CallIndirect";

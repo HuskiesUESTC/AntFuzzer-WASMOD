@@ -2,6 +2,7 @@ package edu.uestc.antfuzzer.framework.bean.result;
 
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -13,4 +14,12 @@ public class ActionFuzzingResult {
     private int count;
     private int invalidArgumentCount;
     private Set<String> vulnerability;
+
+    public ActionFuzzingResult(String smartContract, String name) {
+        this.smartContract = smartContract;
+        this.name = name;
+        this.startTime = System.currentTimeMillis();
+        this.vulnerability = new HashSet<>();
+        this.count = - 1;
+    }
 }
