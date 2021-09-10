@@ -150,8 +150,10 @@ public class MiddlewareUtil {
 
 
     public Middleware getAfterEOSFuzzingMiddleware() {
-        setEOSFuzzingResult.prev(endAFL);
-        return setEOSFuzzingResult;
+        recordFuzzingResult
+                .prev(setEOSFuzzingResult)
+                .prev(endAFL);
+        return recordFuzzingResult;
     }
 
     @Autowired
