@@ -52,6 +52,7 @@ public class BlockDependencyFuzzer extends BaseFuzzer {
                     (String) argumentGenerator.generateSpecialTypeArgument("string")
             );
         }
+
         cleosUtil.pushAction(
                 smartContractName,
                 action,

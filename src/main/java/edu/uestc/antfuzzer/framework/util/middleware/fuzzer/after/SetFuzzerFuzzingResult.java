@@ -26,7 +26,9 @@ public class SetFuzzerFuzzingResult extends AfterCheck {
             count += actionFuzzingResult.getCount();
             invalidArgumentCount += actionFuzzingResult.getInvalidArgumentCount();
         }
-        fuzzerFuzzingResult.setCoverage(bitMapUtil.getCoverage());
+        // 返回当前合约的代码覆盖率信息
+        String smartContract = environmentUtil.getSmartContract().getName();
+        fuzzerFuzzingResult.setCoverage(bitMapUtil.getBitMap().getAllBitMapCounts().getOrDefault(smartContract, 0));
         fuzzerFuzzingResult.setCount(count);
         fuzzerFuzzingResult.setInvalidArgumentCount(invalidArgumentCount);
         fuzzerFuzzingResult.setTime(System.currentTimeMillis() - fuzzerFuzzingResult.getStartTime());

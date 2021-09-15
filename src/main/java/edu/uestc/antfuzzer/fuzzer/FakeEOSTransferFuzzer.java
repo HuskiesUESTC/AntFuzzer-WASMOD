@@ -38,7 +38,7 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
     @Fuzz
     public FuzzingStatus fuzz(@Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
         // 调用代理合约
-        if (canAcceptEOS) {
+//        if (canAcceptEOS) {
             cleosUtil.pushAction(
                     fakeTransferAgentName,
                     "transfer",
@@ -55,7 +55,8 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
                 checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath());
                 return FuzzingStatus.SUCCESS;
             }
-        }
+//        }
+        Thread.sleep(1500);
         return FuzzingStatus.NEXT;
     }
 

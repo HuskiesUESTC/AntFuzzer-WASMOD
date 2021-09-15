@@ -139,7 +139,8 @@ public class MiddlewareUtil {
 
     public Middleware getAfterSmartContractFuzzingMiddleware() {
         recordFuzzingResult
-                .prev(setSmartContractFuzzingResult);
+                .prev(setSmartContractFuzzingResult)
+                .prev(setEOSFuzzingResult);
         return recordFuzzingResult;
     }
 

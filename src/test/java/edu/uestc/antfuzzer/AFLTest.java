@@ -126,7 +126,7 @@ public class AFLTest {
         aflGeneratorInfoCollectionList.offer(currentAflGeneratorInfoCollection);
         environmentUtil.setCurrentAFLGeneratorInfoCollection(currentAflGeneratorInfoCollection);
         // 初始化fuzzing结果
-        ActionFuzzingResult actionFuzzingResult = new ActionFuzzingResult();
+        ActionFuzzingResult actionFuzzingResult = new ActionFuzzingResult("test", "test");
         actionFuzzingResult.setCount(0);
         environmentUtil.setActionFuzzingResult(actionFuzzingResult);
         // 预执行
@@ -230,7 +230,7 @@ public class AFLTest {
         environmentUtil.setCurrentAFLGeneratorInfoCollection(currentAflGeneratorInfoCollection);
 
         // 初始化fuzzing结果
-        ActionFuzzingResult actionFuzzingResult = new ActionFuzzingResult();
+        ActionFuzzingResult actionFuzzingResult = new ActionFuzzingResult("test", "test");
         actionFuzzingResult.setCount(0);
         environmentUtil.setActionFuzzingResult(actionFuzzingResult);
 

@@ -17,7 +17,7 @@
   },
   "eosio": {
     "op_filepath": "/root/.local/share/eosio/op.txt",
-    "coverage_filepath": "/root/.local/share/eosio/coverage.txt"
+    "coverage_filepath": "./src/test/resources/coverage.txt"
   },
   "log_dir": "./log"
 }
