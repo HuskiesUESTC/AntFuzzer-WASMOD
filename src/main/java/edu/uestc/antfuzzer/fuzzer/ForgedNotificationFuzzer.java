@@ -60,22 +60,25 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
     public FuzzingStatus fuzz(@Param(ParamType.Action) String action,
                               @Param(ParamType.ArgGenerator) ArgumentGenerator argumentGenerator) throws IOException, InterruptedException, AFLException {
         // 调用代理合约
-        cleosUtil.pushAction(
-                "eosio.token",
-                "transfer",
-                jsonUtil.getJson(
-                        forgedNotificationTokenFromName,
-                        forgedNotificationAgentName,
-                        (String) argumentGenerator.generateSpecialTypeArgument("asset"),
-                        (String) argumentGenerator.generateSpecialTypeArgument("string")),
-                forgedNotificationTokenFromName);
+        if (canAcceptEOS) {
+            cleosUtil.pushAction(
+                    "eosio.token",
+                    "transfer",
+                    jsonUtil.getJson(
+                            forgedNotificationTokenFromName,
+                            forgedNotificationAgentName,
+                            (String) argumentGenerator.generateSpecialTypeArgument("asset"),
+                            (String) argumentGenerator.generateSpecialTypeArgument("string")),
+                    forgedNotificationTokenFromName);
 
-        // 检测opt.txt
-        boolean checkResult = checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath());
-        if (checkResult) {
-            environmentUtil.getActionFuzzingResult().getVulnerability().add("ForgedNotification");
-            return FuzzingStatus.SUCCESS;
+            // 检测opt.txt
+            boolean checkResult = checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath());
+            if (checkResult) {
+                environmentUtil.getActionFuzzingResult().getVulnerability().add("ForgedNotification");
+                return FuzzingStatus.SUCCESS;
+            }
         }
+        Thread.sleep(1500);
         return FuzzingStatus.NEXT;
     }
 
