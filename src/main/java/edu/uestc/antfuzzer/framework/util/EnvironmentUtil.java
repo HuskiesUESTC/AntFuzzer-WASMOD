@@ -35,8 +35,6 @@ public class EnvironmentUtil {
 
     private Set<Handler> fuzzers;
 
-    // 函数
-    private ActionFuzzingResult actionFuzzingResult;
     // bitmap
     private BitMapUtil.BitMap bitmap;
 
@@ -58,11 +56,26 @@ public class EnvironmentUtil {
     // EOSFuzzingResult
     private EOSFuzzingResult eosFuzzingResult;
 
+    // compareEOSFuzzingResult
+    private EOSFuzzingResult compareEOSFuzzingResult;
+
     // smartContractFuzzingResult
     private SmartContractFuzzingResult smartContractFuzzingResult;
 
+    // compareSmartContractFuzzingResult
+    private SmartContractFuzzingResult compareSmartContractFuzzingResult;
+
     // fuzzerFuzzingResult
     private FuzzerFuzzingResult fuzzerFuzzingResult;
+
+    // compareFuzzerFuzzingResult
+    private FuzzerFuzzingResult compareFuzzerFuzzingResult;
+
+    // actionFuzzingResult
+    private ActionFuzzingResult actionFuzzingResult;
+
+    // compareActionFuzzingResult
+    private ActionFuzzingResult compareActionFuzzingResult;
 
     // 当前合约的参数生成器
     private ArgumentGenerator currentArgumentGenerator;
@@ -85,5 +98,9 @@ public class EnvironmentUtil {
     // 记录已经测试过的合约数量
     private int number;
 
+    // 是否需要进行对比
+    private boolean compare = false;
 
+    // 是否有断点
+    private boolean hasBreakpoint;
 }

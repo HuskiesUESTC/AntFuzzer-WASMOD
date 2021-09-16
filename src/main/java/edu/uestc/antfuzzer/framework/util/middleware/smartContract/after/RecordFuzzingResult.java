@@ -5,6 +5,7 @@ import edu.uestc.antfuzzer.framework.annotation.Component;
 import edu.uestc.antfuzzer.framework.bean.result.EOSFuzzingResult;
 import edu.uestc.antfuzzer.framework.util.ConfigUtil;
 import edu.uestc.antfuzzer.framework.util.EnvironmentUtil;
+import edu.uestc.antfuzzer.framework.util.FileUtil;
 import edu.uestc.antfuzzer.framework.util.JsonUtil;
 import edu.uestc.antfuzzer.framework.util.middleware.AfterCheck;
 
@@ -25,10 +26,14 @@ public class RecordFuzzingResult extends AfterCheck {
     @Autowired
     private EnvironmentUtil environmentUtil;
 
+    @Autowired
+    private FileUtil fileUtil;
+
     @Override
     protected boolean currentCheck() throws InvocationTargetException, IllegalAccessException {
         try {
             String resultFilePath = configUtil.getFuzzingConfig().getOutputFile();
+            fileUtil.checkFilepath(resultFilePath);
             BufferedWriter writer = new BufferedWriter(new FileWriter(resultFilePath));
             EOSFuzzingResult eosFuzzingResult = environmentUtil.getEosFuzzingResult();
             eosFuzzingResult.setNumber(environmentUtil.getNumber());

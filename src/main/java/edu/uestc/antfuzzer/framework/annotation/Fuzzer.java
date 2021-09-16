@@ -22,4 +22,6 @@ public @interface Fuzzer {
     boolean useAccountPool() default true;
 
     ArgDriver argDriver() default ArgDriver.local;
+
+    String compareTo() default "";
 }

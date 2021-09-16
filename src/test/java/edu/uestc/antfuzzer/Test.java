@@ -1,9 +1,17 @@
 package edu.uestc.antfuzzer;
 
 
+import java.io.File;
+
 public class Test {
     public static void main(String[] args) {
-        double result = 3400 * (0.0973 + 0.0324) * 6.44;
-        System.out.println(result);
+        String filepath = "/Volumes/data/code/AntFuzzer/hhh/test/test.json";
+        System.out.println(File.separator);
+        String dir = filepath.substring(0, filepath.lastIndexOf(File.separator));
+        System.out.println(dir);
+        File file = new File(dir);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
     }
 }

@@ -16,11 +16,12 @@ public class FuzzingConfig {
     @SerializedName("smart_contract_dir")
     private String smartContractDir;
 
-
     @SerializedName("start_from")
     private String startFrom;
 
     @SerializedName("has_breakpoint")
-    @Getter
-    private Boolean hasBreakpoint;
+    private Boolean hasBreakpoint = false;
+
+    @SerializedName("compare_to")
+    private String compareTo;
 }

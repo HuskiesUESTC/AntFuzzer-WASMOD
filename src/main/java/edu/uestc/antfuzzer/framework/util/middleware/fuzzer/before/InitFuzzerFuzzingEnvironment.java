@@ -79,7 +79,10 @@ public class InitFuzzerFuzzingEnvironment extends BeforeCheck {
                     break;
                 }
             }
-            return hasTransferAction;
+            // 如果没有transfer函数则自动添加
+            if (!hasTransferAction) {
+                actions.add(new Action("transfer", "transfer", ""));
+            }
         }
         return true;
     }

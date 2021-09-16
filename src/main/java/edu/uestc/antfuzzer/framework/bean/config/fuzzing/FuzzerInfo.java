@@ -24,9 +24,6 @@ public class FuzzerInfo {
     @SerializedName("limit_iteration")
     private Integer limitIteration;
 
-    @SerializedName("limit_time")
-    private Integer limitTime;
-
     public FuzzerInfo(String vulnerability, int iteration, FuzzScope fuzzScope, boolean useAccountPool, ArgDriver argDriver) {
         this.vulnerability = vulnerability;
         this.iteration = iteration;

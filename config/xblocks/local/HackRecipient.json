@@ -5,7 +5,6 @@
       "arg_driver": "local"
     }
   ],
-  "has_breakpoint": false,
   "output_file": "./result/xblocks/local/HackRecipient.json",
   "smart_contract_dir": "/root/EOSFuzzer/dataset/xblocks/contracts"
 }

@@ -16,7 +16,7 @@ import java.io.IOException;
 @Fuzzer(vulnerability = "FakeEOSTransfer",
         fuzzScope = FuzzScope.transfer,
         argDriver = ArgDriver.afl,
-        iteration = 500,
+        iteration = 50,
         useAccountPool = false
 )
 public class FakeEOSTransferFuzzer extends BaseFuzzer {

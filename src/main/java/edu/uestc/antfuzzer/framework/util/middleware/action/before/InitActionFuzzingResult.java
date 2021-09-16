@@ -30,6 +30,7 @@ public class InitActionFuzzingResult extends BeforeCheck {
             if (fuzzerFuzzingResult.getActions() != null) {
                 for (ActionFuzzingResult actionFuzzingResult : fuzzerFuzzingResult.getActions()) {
                     if (action.getName().equals(actionFuzzingResult.getName())) {
+                        actionFuzzingResult.setStartTime(System.currentTimeMillis());
                         environmentUtil.setActionFuzzingResult(actionFuzzingResult);
                         return true;
                     }
@@ -41,6 +42,18 @@ public class InitActionFuzzingResult extends BeforeCheck {
             // 默认为-1
             currentActionFuzzingResult.setCount(isUsingAFL ? -1 : 0);
             environmentUtil.setActionFuzzingResult(currentActionFuzzingResult);
+        }
+        // 检查是否需要对比
+        FuzzerFuzzingResult compareFuzzerFuzzingResult = environmentUtil.getCompareFuzzerFuzzingResult();
+        String actionName = action.getName();
+        if (environmentUtil.isCompare() && compareFuzzerFuzzingResult != null) {
+            for (ActionFuzzingResult actionFuzzingResult : compareFuzzerFuzzingResult.getActions()) {
+                if (actionName.equals(actionFuzzingResult.getName())) {
+                    environmentUtil.setCompareActionFuzzingResult(actionFuzzingResult);
+                    return true;
+                }
+            }
+            return false;
         }
         return true;
     }

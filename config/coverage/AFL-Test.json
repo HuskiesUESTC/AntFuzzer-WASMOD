@@ -1,11 +1,11 @@
 {
   "fuzzers": [
     {
-      "vulnerability": "ForgedNotification",
-      "arg_driver": "local"
+      "vulnerability": "Test",
+      "arg_driver": "afl"
     }
   ],
   "has_breakpoint": false,
-  "output_file": "./result/result.json",
+  "output_file": "./result/eosfuzzer/coverage/AFL-Test.json",
   "smart_contract_dir": "/root/EOSFuzzer/dataset/contracts"
 }

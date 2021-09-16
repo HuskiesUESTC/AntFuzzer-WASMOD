@@ -2,6 +2,7 @@ package edu.uestc.antfuzzer.framework.util.middleware.fuzzing.before;
 
 import edu.uestc.antfuzzer.framework.annotation.Autowired;
 import edu.uestc.antfuzzer.framework.annotation.Component;
+import edu.uestc.antfuzzer.framework.bean.result.ActionFuzzingResult;
 import edu.uestc.antfuzzer.framework.util.BitMapUtil;
 import edu.uestc.antfuzzer.framework.util.EnvironmentUtil;
 import edu.uestc.antfuzzer.framework.util.middleware.BeforeCheck;
@@ -27,7 +28,13 @@ public class CheckTime extends BeforeCheck {
             environmentUtil.setLastCoverageChangeTime(environmentUtil.getActionFuzzingResult().getCount());
             environmentUtil.setLastCoverageChangeTimestamp(System.currentTimeMillis());
         }
-
+        // 如果需要进行对比
+        ActionFuzzingResult compareActionFuzzingResult = environmentUtil.getCompareActionFuzzingResult();
+        if (environmentUtil.isCompare() && compareActionFuzzingResult != null) {
+            long totalTime = System.currentTimeMillis() - environmentUtil.getActionFuzzingResult().getStartTime();
+            return totalTime < compareActionFuzzingResult.getTime();
+        }
+        // 正常情况下，对比覆盖率保持不变的时间以及迭代轮次
         long timeOffset = System.currentTimeMillis() - environmentUtil.getLastCoverageChangeTimestamp();
         return environmentUtil.getActionFuzzingResult().getCount() - environmentUtil.getLastCoverageChangeTime() < 1000 && timeOffset < 50000;
     }

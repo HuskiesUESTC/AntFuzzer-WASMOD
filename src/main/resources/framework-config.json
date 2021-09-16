@@ -1,5 +1,5 @@
 {
-  "fuzzing_config_file": "./config/test.json",
+  "fuzzing_config_file": "./config/test/test.json",
   "default_output_file": "./result.json",
   "default_smart_contract_dir": "/root/EOSFuzzer/dataset/xblocks/contracts",
   "eos_token_public_key": "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",

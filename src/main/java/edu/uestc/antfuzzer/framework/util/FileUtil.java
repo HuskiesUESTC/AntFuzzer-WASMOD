@@ -137,4 +137,15 @@ public class FileUtil {
         String filepath = url.getPath();
         return read(filepath);
     }
+
+    /**
+     * 检查相应文件路径所在文件夹是否存在，没有则创建
+     */
+    public void checkFilepath(String filepath) {
+        String dirPath = filepath.substring(0, filepath.lastIndexOf(File.separator));
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+    }
 }

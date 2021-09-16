@@ -20,7 +20,7 @@ import java.io.IOException;
 
 @Fuzzer(vulnerability = "ForgedNotification",
         fuzzScope = FuzzScope.transfer,
-        iteration = 100,
+        iteration = 50,
         argDriver = ArgDriver.afl,
         useAccountPool = false
 )

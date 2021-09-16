@@ -54,59 +54,73 @@ public class ConfigUtil {
             throw new ConfigException(ExceptionMessage.CONFIG_FILE_NOT_EXISTS.getMessage());
         }
 
-        FuzzingConfig config = null;
         try {
+            FuzzingConfig config = null;
             config = jsonUtil.parseJsonToObject(FuzzingConfig.class, fileUtil.read(filename));
+
+            String outputFile = config.getOutputFile();
+            if (outputFile != null) {
+                fuzzingConfig.setOutputFile(outputFile);
+            }
+
+            String smartContractDir = config.getSmartContractDir();
+            if (smartContractDir != null) {
+                fuzzingConfig.setSmartContractDir(smartContractDir);
+            }
+
+            String compareTo = config.getCompareTo();
+            if (compareTo != null) {
+                fuzzingConfig.setCompareTo(compareTo);
+            }
+
+            Boolean hasBreakPoint = config.getHasBreakpoint();
+            String startFrom = config.getStartFrom();
+            if (hasBreakPoint != null && hasBreakPoint && startFrom != null && !startFrom.equals("")) {
+                fuzzingConfig.setHasBreakpoint(true);
+                fuzzingConfig.setStartFrom(startFrom);
+            }
+
+            Set<FuzzerInfo> customFuzzerInfo = config.getFuzzers();
+            if (customFuzzerInfo == null || customFuzzerInfo.size() == 0) {
+                throw new ConfigException(ExceptionMessage.CONFIG_FILE_INVALID.getMessage());
+            }
+
+            Map<String, Handler> defaultHandlers = new HashMap<>();
+            for (Handler handler : fuzzers) {
+                defaultHandlers.put(handler.getFuzzerInfo().getVulnerability(), handler);
+            }
+
+            Set<Handler> result = new HashSet<>();
+            for (FuzzerInfo fuzzerInfo : customFuzzerInfo) {
+                if (fuzzerInfo.getVulnerability() == null) {
+                    throw new ConfigException(ExceptionMessage.CONFIG_FILE_INVALID.getMessage() + ": 漏洞类型名称不可为空");
+                }
+                Handler handler = defaultHandlers.get(fuzzerInfo.getVulnerability());
+                if (handler == null) {
+                    throw new ConfigException(ExceptionMessage.CONFIG_FILE_INVALID.getMessage() + ": 漏洞类型不存在");
+                }
+                FuzzerInfo defaultFuzzerInfo = handler.getFuzzerInfo();
+                if (fuzzerInfo.getUseAccountPool() == null) {
+                    fuzzerInfo.setUseAccountPool(defaultFuzzerInfo.getUseAccountPool());
+                }
+                if (fuzzerInfo.getFuzzScope() == null) {
+                    fuzzerInfo.setFuzzScope(defaultFuzzerInfo.getFuzzScope());
+                }
+                if (fuzzerInfo.getIteration() == null) {
+                    fuzzerInfo.setIteration(defaultFuzzerInfo.getIteration());
+                }
+                if (fuzzerInfo.getArgDriver() == null) {
+                    fuzzerInfo.setArgDriver(defaultFuzzerInfo.getArgDriver());
+                }
+                handler.setFuzzerInfo(fuzzerInfo);
+                result.add(handler);
+            }
+
+            fuzzingConfig.setFuzzers(customFuzzerInfo);
+            environmentUtil.setFuzzers(result);
         } catch (IOException exception) {
             throw new ConfigException(filename + ExceptionMessage.CONFIG_FILE_INVALID.getMessage());
         }
-
-        String outputFile = config.getOutputFile();
-        if (outputFile != null) {
-            fuzzingConfig.setOutputFile(outputFile);
-        }
-        String smartContractDir = config.getSmartContractDir();
-        if (smartContractDir != null) {
-            fuzzingConfig.setSmartContractDir(smartContractDir);
-        }
-
-        Set<FuzzerInfo> customFuzzerInfo = config.getFuzzers();
-        if (customFuzzerInfo == null || customFuzzerInfo.size() == 0) {
-            throw new ConfigException(ExceptionMessage.CONFIG_FILE_INVALID.getMessage());
-        }
-        Map<String, Handler> defaultHandlers = new HashMap<>();
-        for (Handler handler : fuzzers) {
-            defaultHandlers.put(handler.getFuzzerInfo().getVulnerability(), handler);
-        }
-
-        Set<Handler> result = new HashSet<>();
-        for (FuzzerInfo fuzzerInfo : customFuzzerInfo) {
-            if (fuzzerInfo.getVulnerability() == null) {
-                throw new ConfigException(ExceptionMessage.CONFIG_FILE_INVALID.getMessage() + ": 漏洞类型名称不可为空");
-            }
-            Handler handler = defaultHandlers.get(fuzzerInfo.getVulnerability());
-            if (handler == null) {
-                throw new ConfigException(ExceptionMessage.CONFIG_FILE_INVALID.getMessage() + ": 漏洞类型不存在");
-            }
-            FuzzerInfo defaultFuzzerInfo = handler.getFuzzerInfo();
-            if (fuzzerInfo.getUseAccountPool() == null) {
-                fuzzerInfo.setUseAccountPool(defaultFuzzerInfo.getUseAccountPool());
-            }
-            if (fuzzerInfo.getFuzzScope() == null) {
-                fuzzerInfo.setFuzzScope(defaultFuzzerInfo.getFuzzScope());
-            }
-            if (fuzzerInfo.getIteration() == null) {
-                fuzzerInfo.setIteration(defaultFuzzerInfo.getIteration());
-            }
-            if (fuzzerInfo.getArgDriver() == null) {
-                fuzzerInfo.setArgDriver(defaultFuzzerInfo.getArgDriver());
-            }
-            handler.setFuzzerInfo(fuzzerInfo);
-            result.add(handler);
-        }
-
-        fuzzingConfig.setFuzzers(customFuzzerInfo);
-        environmentUtil.setFuzzers(result);
     }
 
 }
