@@ -24,14 +24,17 @@ public class SetSmartContractFuzzingResult extends AfterCheck {
         int count = 0;
         int invalidArgumentCount = 0;
         int maxCoverage = 0;
+        int maxJointCoverage = 0;
         for (FuzzerFuzzingResult fuzzerFuzzingResult : smartContractFuzzingResult.getFuzzers()) {
             count += fuzzerFuzzingResult.getCount();
             invalidArgumentCount += fuzzerFuzzingResult.getInvalidArgumentCount();
             maxCoverage = Math.max(fuzzerFuzzingResult.getCoverage(), maxCoverage);
+            maxJointCoverage = Math.max(fuzzerFuzzingResult.getJointCoverage(), maxJointCoverage);
         }
         smartContractFuzzingResult.setCount(count);
         smartContractFuzzingResult.setInvalidArgumentCount(invalidArgumentCount);
         smartContractFuzzingResult.setMaxCoverage(maxCoverage);
+        smartContractFuzzingResult.setMaxJointCoverage(maxJointCoverage);
         smartContractFuzzingResult.setTime(System.currentTimeMillis() - smartContractFuzzingResult.getStartTime());
         EOSFuzzingResult eosFuzzingResult = environmentUtil.getEosFuzzingResult();
 

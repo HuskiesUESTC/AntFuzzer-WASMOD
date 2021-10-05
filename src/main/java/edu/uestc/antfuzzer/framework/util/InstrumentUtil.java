@@ -82,7 +82,7 @@ public class InstrumentUtil {
             // 重新编译wast为wasm
             reCompileWast(contractName);
             return true;
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             return false;
         }
     }

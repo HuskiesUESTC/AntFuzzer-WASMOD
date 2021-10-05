@@ -15,6 +15,7 @@ public class SmartContractFuzzingResult {
     private int count;
     private int invalidArgumentCount;
     private int maxCoverage;
+    private int maxJointCoverage;
     private Map<String, Set<String>> smartContractVulnerableActions;
     private LinkedList<FuzzerFuzzingResult> fuzzers;
 

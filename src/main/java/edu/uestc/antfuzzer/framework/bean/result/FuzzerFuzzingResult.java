@@ -15,6 +15,7 @@ public class FuzzerFuzzingResult {
     private int count;
     private int invalidArgumentCount;
     private int coverage;
+    private int jointCoverage;
     private Map<String, Set<String>> fuzzerVulnerableActions;
     private LinkedList<ActionFuzzingResult> actions;
 
