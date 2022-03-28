@@ -14,12 +14,14 @@ public class ActionFuzzingResult {
     private int count;
     private int invalidArgumentCount;
     private Set<String> vulnerability;
+    private Set<String> action;
 
     public ActionFuzzingResult(String smartContract, String name) {
         this.smartContract = smartContract;
         this.name = name;
         this.startTime = System.currentTimeMillis();
         this.vulnerability = new HashSet<>();
+        this.action = new HashSet<>();
         this.count = - 1;
     }
 }

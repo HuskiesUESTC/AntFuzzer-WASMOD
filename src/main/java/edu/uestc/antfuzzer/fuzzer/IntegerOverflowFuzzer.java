@@ -71,7 +71,7 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
             System.out.println(arg.getFuzzingArguments());
 
             extractIntegers(arg);
-
+            fileUtil.rmLogFiles();
             cleosUtil.pushAction(
                     smartContract.getName(),
                     nextAction.getName(),
@@ -82,6 +82,8 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
             ExecuteResult checkResult = checkOverflow();
             if (checkResult.getVulDetect()) {
                 environmentUtil.getActionFuzzingResult().getVulnerability().add("IntegerOverflow");
+                environmentUtil.getActionFuzzingResult().getAction().add(arg.getFuzzingArguments());
+                System.out.println(arg.getFuzzingArguments());
                 return FuzzingStatus.SUCCESS;
             }
         }

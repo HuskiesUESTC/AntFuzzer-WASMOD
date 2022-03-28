@@ -1,6 +1,7 @@
 package edu.uestc.antfuzzer.fuzzer;
 
 import edu.uestc.antfuzzer.framework.annotation.*;
+import edu.uestc.antfuzzer.framework.bean.abi.Action;
 import edu.uestc.antfuzzer.framework.enums.ArgDriver;
 import edu.uestc.antfuzzer.framework.enums.FuzzScope;
 import edu.uestc.antfuzzer.framework.enums.FuzzingStatus;
@@ -9,6 +10,7 @@ import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.type.NameGenerator;
 import edu.uestc.antfuzzer.framework.util.CheckUtil;
 import edu.uestc.antfuzzer.framework.util.InstrumentUtil;
+import edu.uestc.antfuzzer.framework.util.type.ArgumentGenerator;
 import edu.uestc.antfuzzer.framework.util.type.TypeUtil;
 import lombok.AllArgsConstructor;
 
@@ -21,13 +23,15 @@ import java.util.regex.Pattern;
 
 @Fuzzer(vulnerability = "StackOverflow",
         fuzzScope = FuzzScope.all,
-        iteration = 20,
+        iteration = 100,
         argDriver = ArgDriver.local,
         useAccountPool = true
 )
 public class StackOverflowFuzzer extends BaseFuzzer {
     @Autowired
     TypeUtil typeUtil;
+
+    ArgumentGenerator localArgumentGenerator;
 
     @Autowired
     private InstrumentUtil instrumentUtil;
@@ -37,6 +41,7 @@ public class StackOverflowFuzzer extends BaseFuzzer {
     @Before
     public void init() throws IOException, InterruptedException {
         initFuzzer();
+        localArgumentGenerator = typeUtil.getGenerator(smartContract);
         instrumentStatus = instrumentUtil.instrument(smartContract.getName());
         canAcceptEOS = canAcceptEOS();
     }
@@ -45,7 +50,6 @@ public class StackOverflowFuzzer extends BaseFuzzer {
     public FuzzingStatus fuzz(@Param(ParamType.Arguments) String arguments,
                               @Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
         if (instrumentStatus) {
-
             boolean isTransferAction = action.equalsIgnoreCase("transfer");
 
             if (isTransferAction && !canAcceptEOS) {
@@ -55,6 +59,7 @@ public class StackOverflowFuzzer extends BaseFuzzer {
             NameGenerator nameGenerator = (NameGenerator) argumentGenerator.getTypeGeneratorCollection().get("name");
             String smartContractName = smartContract.getName();
             String accountName = nameGenerator.generate(arguments);
+            boolean result = false;
             if (isTransferAction) {
                 smartContractName = "eosio.token";
                 accountName = "eosio";
@@ -64,10 +69,22 @@ public class StackOverflowFuzzer extends BaseFuzzer {
                         (String) argumentGenerator.generateSpecialTypeArgument("asset"),
                         (String) argumentGenerator.generateSpecialTypeArgument("string")
                 );
-            }
-            cleosUtil.pushAction(smartContractName, action, arguments, accountName);
+                cleosUtil.pushAction(smartContractName, action, arguments, accountName);
+                result = checkUtil.checkFile(getCheckOperation(), "/root/.local/share/eosio/logfile.txt");
+            } else {
+                Action nextAction = null;
+                List<Action> actions = smartContract.getAbi().getActions();
+                for (Action act : actions) {
+                    if (act.getName().equals(action)) {
+                        nextAction = act;
+                        break;
+                    }
+                }
+                ArgumentGenerator.Arguments arg = localArgumentGenerator.generateAndStoreFuzzingArguments(nextAction);
+                cleosUtil.pushAction(smartContractName, action, arg.getFuzzingArguments(), accountName);
 
-            boolean result = checkUtil.checkFile(getCheckOperation(), "/root/.local/share/eosio/logfile.txt");
+                result = result || checkUtil.checkFile(getCheckOperation(), "/root/.local/share/eosio/logfile.txt");
+            }
             if (result) {
                 environmentUtil.getActionFuzzingResult().getVulnerability().add("StackOverflow");
                 return FuzzingStatus.SUCCESS;
@@ -116,7 +133,7 @@ public class StackOverflowFuzzer extends BaseFuzzer {
 
                             for (CallFrame cf : frames) {
                                 // 复制目标地址处于栈帧范围内
-                                if (Math.abs(cf.top - dst) <= cf.size || Math.abs(cf.bottom - dst) <= cf.size) {
+                                if (Math.abs(cf.top - dst) <= 256 + cf.size || Math.abs(cf.bottom - dst) <= cf.size) {
                                     if (len > cf.size) {
                                         return true;
                                     }
