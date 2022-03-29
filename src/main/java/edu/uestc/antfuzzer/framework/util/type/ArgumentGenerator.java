@@ -261,22 +261,22 @@ public class ArgumentGenerator {
         });
 
         typeGenerators.put("int32", () -> {
-            int[] result = {Integer.MIN_VALUE + Math.abs(random.nextInt(100)),
-                    Integer.MAX_VALUE + -1 * Math.abs(random.nextInt(100)),
+            int[] result = {Integer.MIN_VALUE + Math.abs(random.nextInt(256) + 128),
+                    Integer.MAX_VALUE + -1 * (Math.abs(random.nextInt(256) + 128)),
                     random.nextInt(Integer.MAX_VALUE)};
             return String.valueOf(result[random.nextInt(3)]);
         });
 
         typeGenerators.put("uint32", () -> {
             long[] result = {0,
-                    4294967296L + -1 * Math.abs(random.nextInt(100)),
+                    4294967296L + -1 * (Math.abs(random.nextInt(256) + 128)),
                     random.nextLong() % 4294967296L};
             return String.valueOf(result[random.nextInt(3)]);
         });
 
         typeGenerators.put("int64", () -> {
-            long[] result = {Long.MIN_VALUE + Math.abs(random.nextInt(500)),
-                    Long.MAX_VALUE + -1 * Math.abs(random.nextInt(500)),
+            long[] result = {Long.MIN_VALUE + Math.abs(random.nextInt(256) + 128),
+                    Long.MAX_VALUE + -1 * (Math.abs(random.nextInt(256) + 128)),
                     random.nextLong()};
             return String.valueOf(result[random.nextInt(3)]);
         });
@@ -284,7 +284,7 @@ public class ArgumentGenerator {
         typeGenerators.put("uint64", () -> {
             /* Bug fix */
             BigInteger[] result = {BigInteger.valueOf(0),
-                    new BigInteger("18446744073709551615").add(BigInteger.valueOf(-1 * Math.abs(random.nextInt(500)))),
+                    new BigInteger("18446744073709551615").add(BigInteger.valueOf(-1 * (Math.abs(random.nextInt(256) + 128)))),
                     BigInteger.valueOf(Math.abs(random.nextLong() + 1))};
             return String.valueOf(result[random.nextInt(3)]);
         });

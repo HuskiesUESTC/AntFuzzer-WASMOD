@@ -44,7 +44,7 @@ public abstract class NumberGenerator implements TypeGenerator, AFLGenerator {
 
     protected String createRandomStr(int length) {
         String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        Random random = new Random();
+        Random random = new Random(System.nanoTime());
         StringBuilder string = new StringBuilder();
         for (int i = 0; i < length; i++) {
             int number = random.nextInt(62);
