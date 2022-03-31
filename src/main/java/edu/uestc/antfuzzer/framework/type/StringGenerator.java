@@ -38,6 +38,13 @@ public class StringGenerator implements TypeGenerator, AFLGenerator {
     public String generateFromLocal() {
         int size = memoStringPool.size();
         if (size == 0)
+            return createRandomStr(threshold);
+        return memoStringPool.get(random.nextInt(size)).replace(" ", "");
+    }
+
+    public String generateFromLocal(boolean limit) {
+        int size = memoStringPool.size();
+        if (size == 0)
             return createRandomStr(byteSize);
         String str = memoStringPool.get(random.nextInt(size)).replace(" ", "");
         if (str.length() > byteSize)
@@ -48,7 +55,7 @@ public class StringGenerator implements TypeGenerator, AFLGenerator {
     }
 
     public String generateFromAFL() throws IOException, AFLException {
-        String result = aflUtil.getStringOfArgument(this, generateFromLocal());
+        String result = aflUtil.getStringOfArgument(this, generateFromLocal(true));
         System.out.println("生成参数：" + result);
         return result;
     }

@@ -8,10 +8,23 @@
             "base": "",
             "fields": [
                 {
-                    "name": "bet",
+                    "name": "victim",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
                     "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
                 }
             ]
+        },
+        {
+            "name": "query",
+            "base": "",
+            "fields": []
         },
         {
             "name": "rollback",
@@ -28,6 +41,11 @@
         {
             "name": "attack",
             "type": "attack",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "query",
+            "type": "query",
             "ricardian_contract": ""
         },
         {

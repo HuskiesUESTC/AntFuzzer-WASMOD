@@ -142,7 +142,7 @@ public class EOSUtil {
          * cleos push action {contract} {action} '{actionParameters}' -p {account} @active
          */
         public void pushAction(String contract, String action, String actionParameters, String account) throws IOException, InterruptedException {
-            String pushAction = "cleos push action %s %s '%s' -p %s@active";
+            String pushAction = "cleos push action %s %s '%s' -p %s@active -f 2>&1";
             actionParameters = actionParameters.replaceAll("'", "");
             String command = String.format(pushAction, contract, action, actionParameters, account);
             pipeUtil.execute(command, true);

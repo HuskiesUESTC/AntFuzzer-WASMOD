@@ -10,6 +10,8 @@ import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.type.ArgumentGenerator;
 import edu.uestc.antfuzzer.framework.util.*;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -108,6 +110,16 @@ public class BaseFuzzer {
         return actions.get(Math.abs(random.nextInt()) % actions.size());
     }
 
+    public Action getAction(String name) {
+        List<Action> actions = smartContract.getAbi().getActions();
+        for (Action act : actions) {
+            if (act.getName().equals(name)) {
+                return act;
+            }
+        }
+        return null;
+    }
+
     public void pushAction(Action action, String args, String testAccount) throws IOException, InterruptedException {
         EOSUtil.CleosUtil cleosUtil = eosUtil.getCleosUtil();
         cleosUtil.pushAction(
@@ -191,6 +203,32 @@ public class BaseFuzzer {
             String filepath = configUtil.getFrameworkConfig().getEosio().getOpFilepath();
             return checkUtil.checkFile(checkUtil.getAcceptEOSTokenCheckOperation(smartContract), filepath);
         } catch (IOException | InterruptedException | AFLException exception) {
+            return false;
+        }
+    }
+
+
+    public boolean checkDup() {
+        try {
+            BufferedReader bf = new BufferedReader(new FileReader("/root/.local/share/eosio/func.txt"));
+            List<String> lines = new ArrayList<>();
+            String line = null;
+            while ((line = bf.readLine()) != null && !line.trim().equals("")) {
+                lines.add(line);
+            }
+            int seek = lines.size();
+            bf.close();
+            if (seek % 2 != 0) {
+                return false;
+            }
+
+            for (int low = 0, high = seek / 2; low < seek / 2 && high < lines.size(); low++, high++) {
+                if (!lines.get(low).equals(lines.get(high))) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (IOException e) {
             return false;
         }
     }

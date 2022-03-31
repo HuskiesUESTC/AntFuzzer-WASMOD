@@ -119,9 +119,10 @@ public class ArgumentGenerator {
 
     private JsonElement generateData(Struct struct) throws IOException, InterruptedException, AFLException {
         JsonObject json = new JsonObject();
-        if (struct == null)
+        List<Struct.Field> fields = null;
+        if (struct == null || (fields = struct.getFields()) == null)
             return json;
-        List<Struct.Field> fields = struct.getFields();
+
         for (Struct.Field field : fields) {
             String name = field.getName();
             String type = field.getType();

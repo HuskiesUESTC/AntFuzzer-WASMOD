@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 @Fuzzer(vulnerability = "IntegerOverflow",
         fuzzScope = FuzzScope.all,
-        iteration = 10,
+        iteration = 50,
         argDriver = ArgDriver.local,
         useAccountPool = true
 )
@@ -63,7 +63,7 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
     @Fuzz
     public FuzzingStatus fuzz(@Param(ParamType.Arguments) String arguments,
                               @Param(ParamType.Action) String action) throws IOException, InterruptedException {
-        Action nextAction = getRandomAction();
+        Action nextAction = getAction(action);
         if (nextAction != null) {
             System.out.println(nextAction.getName());
 
@@ -164,6 +164,10 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
                         }
 
                         for (BigInteger integer : int64Pool) {
+                            if (rhs.equals(new BigInteger("18446744073709551615")) || lhs.equals(new BigInteger("18446744073709551615"))) {
+                                if (!integer.equals(new BigInteger("-1")))
+                                    continue;
+                            }
                             if (lhs.equals(integer)) {
                                 rhs = rhs.subtract(new BigInteger("18446744073709551616"));
                                 res = res.subtract(new BigInteger("18446744073709551616"));
@@ -223,6 +227,11 @@ public class IntegerOverflowFuzzer extends BaseFuzzer {
                             }
                         }
                         for (BigInteger integer : int32Pool) {
+                            // 如果左右有-1 且参数不是-1 则不处理
+                            if (rhs.equals(new BigInteger("4294967295")) || lhs.equals(new BigInteger("4294967295"))) {
+                                if (!integer.equals(new BigInteger("-1")))
+                                    continue;
+                            }
                             if (lhs.equals(integer)) {
                                 rhs = rhs.subtract(new BigInteger("4294967296"));
                                 res = res.subtract(new BigInteger("4294967296"));
