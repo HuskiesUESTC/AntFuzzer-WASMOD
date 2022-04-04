@@ -62,6 +62,7 @@ public class EOSUtil {
                         "1000000000000.0000 EOS"),
                 "eosio.token");
 
+        cleosUtil.createAccount("testeosfrom", frameworkConfig.getEosTokenPublicKey());
         // 初始化用户池
         String accountPublicKey = frameworkConfig.getAccount().getPublicKey();
         if (useAccountPool) {
@@ -72,13 +73,22 @@ public class EOSUtil {
             accountPool.add(new Account("fuzzacc2", accountPublicKey));
             accountPool.add(new Account("fuzzacc3", accountPublicKey));
         }
+
+        // issue EOS to testeosfrom
+        cleosUtil.pushAction(
+                "eosio.token",
+                "issue",
+                jsonUtil.getJson("testeosfrom","1000000000.0000 EOS","FUZZER"),
+                "eosio"
+        );
+
         // 部署测试合约
         if (contractName != null && !contractName.trim().equalsIgnoreCase("")) {
             cleosUtil.createAccount(contractName, accountPublicKey);
             cleosUtil.pushAction(
                     "eosio.token",
                     "issue",
-                    jsonUtil.getJson(contractName, "1000000000.0000 EOS", "fuzzer"),
+                    jsonUtil.getJson(contractName, "1000000000.0000 EOS", "FUZZER"),
                     "eosio");
             cleosUtil.setContract(contractName, configUtil.getFuzzingConfig().getSmartContractDir() + "/" + contractName);
             cleosUtil.addCodePermission(contractName);
@@ -86,18 +96,18 @@ public class EOSUtil {
     }
 
     public void setUpEOSToken(String smartContract) throws IOException, InterruptedException {
-        cleosUtil.pushAction(
-                "eosio.token",
-                "issue",
-                jsonUtil.getJson("eosio", "10000000000.0000 EOS", "fuzzer"),
-                "eosio");
+//        cleosUtil.pushAction(
+//                "eosio.token",
+//                "issue",
+//                jsonUtil.getJson("eosio", "10000000000.0000 EOS", "fuzzer"),
+//                "eosio");
 
-        cleosUtil.pushAction(
-                "eosio.token",
-                "transfer",
-                jsonUtil.getJson("eosio", smartContract, "1000000000.0000 EOS", "fuzzer"),
-                "eosio"
-        );
+//        cleosUtil.pushAction(
+//                "eosio.token",
+//                "transfer",
+//                jsonUtil.getJson("eosio", smartContract, "1000000000.0000 EOS", "fuzzer"),
+//                "eosio"
+//        );
     }
 
     public class CppUtil {
@@ -145,7 +155,8 @@ public class EOSUtil {
             String pushAction = "cleos push action %s %s '%s' -p %s@active -f 2>&1";
             actionParameters = actionParameters.replaceAll("'", "");
             String command = String.format(pushAction, contract, action, actionParameters, account);
-            pipeUtil.execute(command, true);
+            System.out.println(command);
+            pipeUtil.execute(command);
         }
 
         /**
@@ -164,6 +175,7 @@ public class EOSUtil {
         public void setContract(String contract, String contractDir) throws IOException, InterruptedException {
             String setContract = "cleos set contract %s %s -p %s@active";
             String command = String.format(setContract, contract, contractDir, contract);
+            System.out.println(command);
             pipeUtil.executeWithResult(command);
         }
 
@@ -173,6 +185,7 @@ public class EOSUtil {
         public void addCodePermission(String account) throws IOException {
             String addCodePermission = "cleos set account permission %s active --add-code";
             String command = String.format(addCodePermission, account);
+            System.out.println(command);
             pipeUtil.execute(command);
         }
 

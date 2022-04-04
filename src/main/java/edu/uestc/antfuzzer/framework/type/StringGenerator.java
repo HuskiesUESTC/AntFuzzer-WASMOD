@@ -55,8 +55,8 @@ public class StringGenerator implements TypeGenerator, AFLGenerator {
     }
 
     public String generateFromAFL() throws IOException, AFLException {
-        String result = aflUtil.getStringOfArgument(this, generateFromLocal(true));
-        System.out.println("生成参数：" + result);
+        String result = aflUtil.getStringOfArgument(this, generateFromLocal());
+        System.out.println("generate: " + result);
         return result;
     }
 

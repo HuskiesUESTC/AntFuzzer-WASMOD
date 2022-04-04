@@ -37,6 +37,7 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
     public boolean init() throws IOException, InterruptedException {
         initFuzzer();
         checked = false;
+        canAcceptEOS = canAcceptEOS();
         EOSUtil.CppUtil cppUtil = eosUtil.getCppUtil();
 
         FrameworkConfig.Account account = configUtil.getFrameworkConfig().getAccount();
@@ -56,7 +57,11 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
         cppUtil.compileSmartContract(contractDir, smartContract.getName());
         cleosUtil.setContract(forgedNotificationAgentName, contractDir);
         cleosUtil.addCodePermission(forgedNotificationAgentName);
-        canAcceptEOS = canAcceptEOS();
+//        try {
+//            executeAllActions();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         return canAcceptEOS;
     }
 
@@ -67,6 +72,9 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
             return FuzzingStatus.NEXT;
         }
         // 调用代理合约
+        if (canAcceptEOS) {
+            System.out.println("acceptEOS");
+        }
         if (canAcceptEOS) {
             cleosUtil.pushAction(
                     "eosio.token",

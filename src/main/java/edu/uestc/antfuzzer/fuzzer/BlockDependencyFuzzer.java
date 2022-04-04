@@ -44,9 +44,9 @@ public class BlockDependencyFuzzer extends BaseFuzzer {
         boolean isTransferAction = action.equalsIgnoreCase("transfer");
         if (isTransferAction && canAcceptEOS) {
             smartContractName = "eosio.token";
-            accountName = "eosio";
+            accountName = "testeosfrom";
             arguments = jsonUtil.getJson(
-                    "eosio",
+                    "testeosfrom",
                     smartContract.getName(),
                     (String) argumentGenerator.generateSpecialTypeArgument("asset"),
                     (String) argumentGenerator.generateSpecialTypeArgument("string")

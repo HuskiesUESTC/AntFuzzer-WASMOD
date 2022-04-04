@@ -176,7 +176,7 @@ public class AFLUtil {
                     String data = fileUtil.read(filepath);
                     if (!data.equals(prevStr)) {
                         prevStr = data;
-                        System.out.println("AFL生成参数:" + prevStr);
+                        System.out.println("AFL generate:" + prevStr);
                         return data;
                     }
                 }
