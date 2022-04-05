@@ -6,6 +6,6 @@
     }
   ],
   "has_breakpoint": false,
-  "output_file": "./result/eosfuzzer/local/FakeEOSTransfer.json",
-  "smart_contract_dir": "/root/EOSFuzzer/dataset/contracts"
+  "output_file": "./result/FakeEOSTransfer.json",
+  "smart_contract_dir": "/root/code/contracts"
 }

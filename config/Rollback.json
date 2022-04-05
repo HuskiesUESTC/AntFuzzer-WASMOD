@@ -1,0 +1,10 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "Rollback"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/Rollback.json",
+  "smart_contract_dir": "/root/code/contracts"
+}

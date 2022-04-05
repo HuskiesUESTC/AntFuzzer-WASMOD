@@ -75,7 +75,7 @@ public class LogUtil {
         return logger;
     }
 
-    public void logException(Exception e) {
+    public void logException(Throwable e) {
         StringBuilder stringBuilder = new StringBuilder();
         if (e != null) {
             for (StackTraceElement element : e.getStackTrace()) {

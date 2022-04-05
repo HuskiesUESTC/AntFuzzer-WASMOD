@@ -3,18 +3,18 @@ package edu.uestc.antfuzzer.fuzzer;
 import edu.uestc.antfuzzer.framework.annotation.Before;
 import edu.uestc.antfuzzer.framework.annotation.Fuzz;
 import edu.uestc.antfuzzer.framework.annotation.Fuzzer;
-import edu.uestc.antfuzzer.framework.annotation.Param;
 import edu.uestc.antfuzzer.framework.enums.ArgDriver;
 import edu.uestc.antfuzzer.framework.enums.FuzzScope;
 import edu.uestc.antfuzzer.framework.enums.FuzzingStatus;
-import edu.uestc.antfuzzer.framework.enums.ParamType;
 import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.util.CheckUtil;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 @Fuzzer(vulnerability = "FakeEOSTransfer",
         fuzzScope = FuzzScope.transfer,
@@ -26,8 +26,6 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
     private final String fakeTransferAgentName = "atknoti";
 
     private CheckUtil.CheckOperation checkOperation;
-
-    static int magic = 1;
 
     @Before
     public boolean init() throws IOException, InterruptedException {
@@ -41,33 +39,24 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
     }
 
     @Fuzz
-    public FuzzingStatus fuzz(@Param(ParamType.Arguments) String arguments,
-                              @Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
+    public FuzzingStatus fuzz() throws IOException, InterruptedException, AFLException {
         fileUtil.rmLogFiles();
         // 调用代理合约
-        String []names = {smartContract.getName(), fakeTransferAgentName};
-        if (canAcceptEOS) {
-            cleosUtil.pushAction(
-                    fakeTransferAgentName,
-                    "transfer",
-                    jsonUtil.getJson(
-                            smartContract.getName(),
-                            smartContract.getName(),
-                            (String) argumentGenerator.generateSpecialTypeArgument("asset"),
-                            (String) argumentGenerator.generateSpecialTypeArgument("string")
-                    ),
-                    names[new Random().nextInt(2)]);
-            // 检测opt.txt
-            if (checkAllLines()) {
-                environmentUtil.getActionFuzzingResult().getVulnerability().add("FakeEOSTransfer");
-//                System.exit(0);
-                return FuzzingStatus.SUCCESS;
-            }
-//            if (checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath()) && !checkDup() && checkStart()) {
-//                environmentUtil.getActionFuzzingResult().getVulnerability().add("FakeEOSTransfer");
-//                System.exit(0);
-//                return FuzzingStatus.SUCCESS;
-//            }
+        String[] names = {smartContract.getName(), fakeTransferAgentName};
+        cleosUtil.pushAction(
+                fakeTransferAgentName,
+                "transfer",
+                jsonUtil.getJson(
+                        smartContract.getName(),
+                        smartContract.getName(),
+                        (String) argumentGenerator.generateSpecialTypeArgument("asset"),
+                        (String) argumentGenerator.generateSpecialTypeArgument("string")
+                ),
+                names[new Random().nextInt(2)]);
+        // 检测opt.txt
+        if (checkAllLines()) {
+            environmentUtil.getActionFuzzingResult().getVulnerability().add("FakeEOSTransfer");
+            return FuzzingStatus.SUCCESS;
         }
         return FuzzingStatus.NEXT;
     }

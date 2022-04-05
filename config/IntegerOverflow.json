@@ -1,0 +1,10 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "IntegerOverflow"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/IntegerOverflow.json",
+  "smart_contract_dir": "/root/code/contracts"
+}

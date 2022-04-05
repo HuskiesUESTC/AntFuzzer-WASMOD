@@ -1,0 +1,10 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "HackRecipient"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/HackRecipient.json",
+  "smart_contract_dir": "/root/code/contracts"
+}

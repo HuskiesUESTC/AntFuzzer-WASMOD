@@ -122,7 +122,6 @@ public class ArgumentGenerator {
         List<Struct.Field> fields = null;
         if (struct == null || (fields = struct.getFields()) == null)
             return json;
-
         for (Struct.Field field : fields) {
             String name = field.getName();
             String type = field.getType();

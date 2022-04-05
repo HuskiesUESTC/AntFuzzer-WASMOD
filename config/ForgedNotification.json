@@ -1,0 +1,10 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "ForgedNotification"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/ForgedNotification.json",
+  "smart_contract_dir": "/root/code/contracts"
+}

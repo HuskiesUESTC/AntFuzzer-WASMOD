@@ -66,8 +66,7 @@ public class ForgedNotificationFuzzer extends BaseFuzzer {
     }
 
     @Fuzz
-    public FuzzingStatus fuzz(@Param(ParamType.Action) String action,
-                              @Param(ParamType.ArgGenerator) ArgumentGenerator argumentGenerator) throws IOException, InterruptedException, AFLException {
+    public FuzzingStatus fuzz(@Param(ParamType.ArgGenerator) ArgumentGenerator argumentGenerator) throws IOException, InterruptedException, AFLException {
         if (checked) {
             return FuzzingStatus.NEXT;
         }

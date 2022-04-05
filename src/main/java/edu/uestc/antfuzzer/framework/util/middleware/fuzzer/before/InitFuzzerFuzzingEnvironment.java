@@ -5,6 +5,7 @@ import edu.uestc.antfuzzer.framework.annotation.Component;
 import edu.uestc.antfuzzer.framework.bean.Handler;
 import edu.uestc.antfuzzer.framework.bean.SmartContract;
 import edu.uestc.antfuzzer.framework.bean.abi.Action;
+import edu.uestc.antfuzzer.framework.bean.abi.Struct;
 import edu.uestc.antfuzzer.framework.bean.config.fuzzing.FuzzerInfo;
 import edu.uestc.antfuzzer.framework.enums.ArgDriver;
 import edu.uestc.antfuzzer.framework.enums.FuzzScope;
@@ -69,19 +70,32 @@ public class InitFuzzerFuzzingEnvironment extends BeforeCheck {
         // 检查合约函数的检测范围，如果是 transfer 的话，首先检查 ABI 中是否包含 transfer，没有直接跳过
         FuzzScope fuzzScope = fuzzer.getFuzzerInfo().getFuzzScope();
         if (fuzzScope == FuzzScope.transfer) {
+            List<Action> newActions = new ArrayList<>();
             boolean hasTransferAction = false;
             for (Action action : actions) {
                 if (action.getName().equalsIgnoreCase("transfer")) {
-                    actions = new ArrayList<>();
-                    actions.add(action);
-                    environmentUtil.setActions(actions);
+                    newActions.add(action);
+                    environmentUtil.setActions(newActions);
                     hasTransferAction = true;
                     break;
                 }
             }
             // 如果没有transfer函数则自动添加
+            // 同时添加transfer的类型信息
             if (!hasTransferAction) {
-                actions.add(new Action("transfer", "transfer", ""));
+                newActions.add(new Action("transfer", "transfer", ""));
+                environmentUtil.setActions(newActions);
+                SmartContract smartContract = environmentUtil.getSmartContract();
+                List<Struct.Field> fields = new ArrayList<>();
+                Struct.Field quantity = new Struct.Field("quantity", "asset");
+                fields.add(quantity);
+                Struct struct = Struct.builder()
+                        .name("transfer")
+                        .base("")
+                        .fields(fields)
+                        .build();
+                struct.setName("transfer");
+                smartContract.getAbi().getStructs().add(struct);
             }
         }
         return true;

@@ -169,7 +169,8 @@ public class AFLUtil {
      * 获取字符串
      */
     private String getAflRandomStr() throws AFLException, InterruptedException {
-        while (true) {
+        int count = 0;
+        while (count++ < 15) {
             try {
                 String filepath = redisUtil.getInputFilepath(to.id);
                 if (fileUtil.exists(filepath)) {
@@ -180,11 +181,16 @@ public class AFLUtil {
                         return data;
                     }
                 }
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
             FuzzInfo fuzzInfo = new FuzzInfo(environmentUtil.getBitmap().getJointBitMap(), FuzzingStatus.NEXT, to.id);
             redisUtil.pushFuzzInfo(fuzzInfo);
             threadUtil.waitFor(50);
         }
+        // 检查当前afl进程是否存在
+        boolean isRunning = to.checkIfRunning();
+        AFLExceptionStatus status = isRunning ? AFLExceptionStatus.PROCESS_EXIT : AFLExceptionStatus.CUR_INPUT_FILE_NOT_EXISTS;
+        throw new AFLException(status);
     }
 
     /**

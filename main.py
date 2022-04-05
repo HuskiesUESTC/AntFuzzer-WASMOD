@@ -27,44 +27,14 @@ def execute_task():
     if (not client.__contains__(init_key)) or client.get(init_key) == b'0':
         # 执行脚本的配置文件
         config = [
-            # coverage
-            'coverage/AFL-Test.json',
-            'coverage/Local-Test.json',
-            # eosfuzzer
-            #   afl
-            'eosfuzzer/afl/FakeEOSTransfer.json',
-            'eosfuzzer/afl/ForgedNotification.json',
-            # 'eosfuzzer/afl/MissingAuth.json',
-            # 'eosfuzzer/afl/BlockDependency-MissingAuth.json',
-            # 'eosfuzzer/afl/Rollback.json',
-            # 'eosfuzzer/afl/HackRecipient.json',
-            # 'eosfuzzer/afl/Test.json',
-            #   local
-            # 'eosfuzzer/local/FakeEOSTransfer.json',
-            # 'eosfuzzer/local/ForgedNotification.json',
-            # 'eosfuzzer/local/MissingAuth.json',
-            # 'eosfuzzer/local/BlockDependency-MissingAuth.json',
-            # 'eosfuzzer/local/Rollback.json',
-            # 'eosfuzzer/local/HackRecipient.json',
-            # 'eosfuzzer/local/IntegerOverflow.json',
-            # 'eosfuzzer/local/StackOverflow.json',
-            # xblocks
-            #   afl
-            'xblocks/afl/FakeEOSTransfer.json',
-            'xblocks/afl/ForgedNotification.json',
-            # 'xblocks/afl/MissingAuth.json',
-            # 'xblocks/afl/BlockDependency-MissingAuth.json',
-            # 'xblocks/afl/Rollback.json',
-            'xblocks/afl/HackRecipient.json',
-            #   local
-            # 'xblocks/local/FakeEOSTransfer.json',
-            # 'xblocks/local/ForgedNotification.json',
-            # 'xblocks/local/MissingAuth.json',
-            # 'xblocks/local/BlockDependency-MissingAuth.json',
-            # 'xblocks/local/Rollback.json',
-            # 'xblocks/local/HackRecipient.json',
-            'xblocks/local/IntegerOverflow.json',
-            'xblocks/local/StackOverflow.json',
+            # 'MissingAuth.json',
+            # 'BlockDependency-MissingAuth.json',
+            # 'Rollback.json',
+            'FakeEOSTransfer.json',
+            'ForgedNotification.json',
+            # 'HackRecipient.json',
+            'IntegerOverflow.json',
+            # 'StackOverflow.json',
         ]
         # 将配置文件加入到redis队列中
         for item in config:

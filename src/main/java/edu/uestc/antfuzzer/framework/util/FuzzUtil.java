@@ -59,7 +59,6 @@ public class FuzzUtil {
          */
         int count = 0;
         for (String smartContractName : smartContractNames) {
-
             environmentUtil.setNumber(++count);
             SmartContract smartContract = smartContractUtil.loadSmartContract(smartContractName);
             environmentUtil.setSmartContract(smartContract); // 加载合约
@@ -120,12 +119,12 @@ public class FuzzUtil {
                             bitMap = bitMapUtil.getBitMap();
                             // 如果参数生成错误直接返回错误信息
                         } catch (InvocationTargetException | AFLException exception) {
-                            logUtil.logException(exception);
                             AFLException e = null;
                             if (exception instanceof InvocationTargetException) {
                                 Throwable targetException = ((InvocationTargetException) exception).getTargetException();
                                 boolean isAFLException = (targetException instanceof AFLException);
                                 if (!isAFLException) {
+                                    logUtil.logException(targetException);
                                     targetException.printStackTrace();
                                     continue;
                                 }
@@ -133,6 +132,7 @@ public class FuzzUtil {
                             } else {
                                 e = (AFLException) exception;
                             }
+                            logUtil.logException(e);
                             switch (e.getExceptionStatus()) {
                                 // 如果当前coverage文件不存在，则直接返回之前的bitmap
                                 case COVERAGE_FILE_NOT_EXISTS:

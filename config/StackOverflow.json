@@ -1,0 +1,10 @@
+{
+  "fuzzers": [
+    {
+      "vulnerability": "StackOverflow"
+    }
+  ],
+  "has_breakpoint": false,
+  "output_file": "./result/StackOverflow.json",
+  "smart_contract_dir": "/root/code/contracts"
+}
