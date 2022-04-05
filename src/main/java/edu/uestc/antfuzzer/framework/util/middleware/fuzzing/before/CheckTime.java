@@ -36,6 +36,6 @@ public class CheckTime extends BeforeCheck {
         }
         // 正常情况下，对比覆盖率保持不变的时间以及迭代轮次
         long timeOffset = System.currentTimeMillis() - environmentUtil.getLastCoverageChangeTimestamp();
-        return environmentUtil.getActionFuzzingResult().getCount() - environmentUtil.getLastCoverageChangeTime() < 100000 && timeOffset < 5000000;
+        return environmentUtil.getActionFuzzingResult().getCount() - environmentUtil.getLastCoverageChangeTime() < 1000 && timeOffset < 50000;
     }
 }

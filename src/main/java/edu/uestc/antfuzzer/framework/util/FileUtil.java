@@ -120,7 +120,15 @@ public class FileUtil {
             File[] files = rootDir.listFiles((dir, name) -> name.endsWith("txt"));
             if (files != null && files.length > 0) {
                 for (File file : files) {
-                    file.delete();
+                    try {
+                        BufferedWriter bf = new BufferedWriter(new FileWriter(file, false));
+                        bf.write("");
+                        bf.flush();
+                        bf.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+//                    file.delete();
                 }
             }
         }

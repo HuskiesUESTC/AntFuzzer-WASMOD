@@ -63,7 +63,7 @@ public abstract class NumberGenerator implements TypeGenerator, AFLGenerator {
         String numberStr = covertBytesToNumber(exampleStr);
         byte[] bytes = aflUtil.getByteArrayOfArgument(this, numberStr, exampleStr);
         String result = covertBytesToNumber(bytes);
-        System.out.println("生成参数：" + result);
+        System.out.println("generate: " + result);
         return result;
     }
 

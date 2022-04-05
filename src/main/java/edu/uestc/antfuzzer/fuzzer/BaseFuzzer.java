@@ -10,6 +10,8 @@ import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.type.ArgumentGenerator;
 import edu.uestc.antfuzzer.framework.util.*;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -62,7 +64,7 @@ public class BaseFuzzer {
         // 解锁钱包
         cleosUtil.unlockWallet(configUtil.getFrameworkConfig().getAccount().getPrivateKey());
         // 分配代币
-        eosUtil.setUpEOSToken(smartContract.getName());
+//        eosUtil.setUpEOSToken(smartContract.getName());
     }
 
 //    /**
@@ -108,6 +110,16 @@ public class BaseFuzzer {
         return actions.get(Math.abs(random.nextInt()) % actions.size());
     }
 
+    public Action getAction(String name) {
+        List<Action> actions = smartContract.getAbi().getActions();
+        for (Action act : actions) {
+            if (act.getName().equals(name)) {
+                return act;
+            }
+        }
+        return null;
+    }
+
     public void pushAction(Action action, String args, String testAccount) throws IOException, InterruptedException {
         EOSUtil.CleosUtil cleosUtil = eosUtil.getCleosUtil();
         cleosUtil.pushAction(
@@ -145,6 +157,21 @@ public class BaseFuzzer {
         return action;
     }
 
+    public void executeAllActions() throws IOException, AFLException, InterruptedException {
+        Random random = new Random();
+        List<Action> actionList = smartContract.getAbi().getActions();
+        for (int i = 0; i < 50; i++) {
+            Action act = actionList.get(random.nextInt(actionList.size()));
+            String arguments = argumentGenerator.generateFuzzingArguments(act);
+            cleosUtil.pushAction(
+                    smartContract.getName(),
+                    act.getName(),
+                    arguments,
+                    smartContract.getName()
+            );
+        }
+    }
+
     /**
      * 返回当前合约账户的代币余额
      *
@@ -169,6 +196,31 @@ public class BaseFuzzer {
         return null;
     }
 
+    private boolean checkAllLines() {
+        try {
+            Set<String> callIndirect = new HashSet<>();
+            BufferedReader bf = new BufferedReader(new FileReader("/root/.local/share/eosio/op.txt"));
+            String line = null;
+            String target = "CallIndirect";
+            while ((line = bf.readLine()) != null) {
+                if (line.startsWith(target)) {
+                    callIndirect.add(line);
+                    if (callIndirect.size() >= 2) {
+                        for (String s : callIndirect) {
+                            System.out.println(s);
+                        }
+                        return true;
+                    }
+                }
+            }
+            bf.close();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * 测试被测合约能否接受EOS转账
      * @return true if it can
@@ -181,16 +233,59 @@ public class BaseFuzzer {
                     "eosio.token",
                     "transfer",
                     jsonUtil.getJson(
-                            "eosio",
+                            "testeosfrom",
                             smartContract.getName(),
                             (String) argumentGenerator.generateSpecialTypeArgument("asset"),
                             (String) argumentGenerator.generateSpecialTypeArgument("string")
                     ),
-                    "eosio"
+                    "testeosfrom"
             );
             String filepath = configUtil.getFrameworkConfig().getEosio().getOpFilepath();
-            return checkUtil.checkFile(checkUtil.getAcceptEOSTokenCheckOperation(smartContract), filepath);
+            Set<String> callIndirect = new HashSet<>();
+            BufferedReader bf = new BufferedReader(new FileReader(filepath));
+            String line = null;
+            String target = "CallIndirect";
+            while ((line = bf.readLine()) != null) {
+                if (line.startsWith(target)) {
+                    callIndirect.add(line);
+                    if (callIndirect.size() >= 2) {
+                        for (String s : callIndirect) {
+                            System.out.println(s);
+                        }
+                        return true;
+                    }
+                }
+            }
+            bf.close();
+            return false;
+//            return checkUtil.checkFile(checkUtil.getAcceptEOSTokenCheckOperation(smartContract), filepath);
         } catch (IOException | InterruptedException | AFLException exception) {
+            return false;
+        }
+    }
+
+
+    public boolean checkDup() {
+        try {
+            BufferedReader bf = new BufferedReader(new FileReader("/root/.local/share/eosio/func.txt"));
+            List<String> lines = new ArrayList<>();
+            String line = null;
+            while ((line = bf.readLine()) != null && !line.trim().equals("")) {
+                lines.add(line);
+            }
+            int seek = lines.size();
+            bf.close();
+            if (seek % 2 != 0) {
+                return false;
+            }
+
+            for (int low = 0, high = seek / 2; low < seek / 2 && high < lines.size(); low++, high++) {
+                if (!lines.get(low).equals(lines.get(high))) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (IOException e) {
             return false;
         }
     }

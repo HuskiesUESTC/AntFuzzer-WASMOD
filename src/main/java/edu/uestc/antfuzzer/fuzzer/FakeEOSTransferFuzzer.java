@@ -11,7 +11,10 @@ import edu.uestc.antfuzzer.framework.enums.ParamType;
 import edu.uestc.antfuzzer.framework.exception.AFLException;
 import edu.uestc.antfuzzer.framework.util.CheckUtil;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.*;
 
 @Fuzzer(vulnerability = "FakeEOSTransfer",
         fuzzScope = FuzzScope.transfer,
@@ -23,6 +26,8 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
     private final String fakeTransferAgentName = "atknoti";
 
     private CheckUtil.CheckOperation checkOperation;
+
+    static int magic = 1;
 
     @Before
     public boolean init() throws IOException, InterruptedException {
@@ -36,45 +41,95 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
     }
 
     @Fuzz
-    public FuzzingStatus fuzz(@Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
+    public FuzzingStatus fuzz(@Param(ParamType.Arguments) String arguments,
+                              @Param(ParamType.Action) String action) throws IOException, InterruptedException, AFLException {
+        fileUtil.rmLogFiles();
         // 调用代理合约
+        String []names = {smartContract.getName(), fakeTransferAgentName};
         if (canAcceptEOS) {
             cleosUtil.pushAction(
                     fakeTransferAgentName,
                     "transfer",
                     jsonUtil.getJson(
-                            "eosio",
+                            smartContract.getName(),
                             smartContract.getName(),
                             (String) argumentGenerator.generateSpecialTypeArgument("asset"),
                             (String) argumentGenerator.generateSpecialTypeArgument("string")
                     ),
-                    fakeTransferAgentName);
+                    names[new Random().nextInt(2)]);
             // 检测opt.txt
-            if (checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath())) {
+            if (checkAllLines()) {
                 environmentUtil.getActionFuzzingResult().getVulnerability().add("FakeEOSTransfer");
-                checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath());
+//                System.exit(0);
                 return FuzzingStatus.SUCCESS;
             }
+//            if (checkUtil.checkFile(getCheckOperation(), fileUtil.getOpFilepath()) && !checkDup() && checkStart()) {
+//                environmentUtil.getActionFuzzingResult().getVulnerability().add("FakeEOSTransfer");
+//                System.exit(0);
+//                return FuzzingStatus.SUCCESS;
+//            }
         }
-        Thread.sleep(1500);
         return FuzzingStatus.NEXT;
     }
 
+    private boolean checkAllLines() {
+        try {
+            Set<String> callIndirect = new HashSet<>();
+            BufferedReader bf = new BufferedReader(new FileReader("/root/.local/share/eosio/op.txt"));
+            String line = null;
+            String target = "CallIndirect";
+            while ((line = bf.readLine()) != null) {
+                if (line.startsWith(target)) {
+                    callIndirect.add(line);
+                    if (callIndirect.size() >= 2) {
+                        for (String s : callIndirect) {
+                            System.out.println(s);
+                        }
+                        return true;
+                    }
+                }
+            }
+            bf.close();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private CheckUtil.CheckOperation getCheckOperation() {
+//        Pattern logFrameSizeTypePattern = Pattern.compile("CallIndirect\\(isNotHost,Goto\\(\\(([0-9]+)\\)\\)");
+//        Pattern logFrameSizeTypePattern = Pattern.compile(" {2}\\(type (\\$[a-zA-Z0-9]+) \\(func \\(param i32\\)\\)\\)");
+        Set<String> callIndirect = new HashSet<>();
         if (checkOperation == null) {
             checkOperation = (reader, args) -> {
                 String target = "CallIndirect";
-                int callIndirect = 0;
-
                 String line = null;
                 while ((line = reader.readLine()) != null) {
-                    if (line.startsWith(target) && (++callIndirect) == 2) {
-                        return true;
+                    if (line.startsWith(target)) {
+                        callIndirect.add(line);
+                        if (callIndirect.size() >= 2) {
+                            for (String s : callIndirect) {
+                                System.out.println(s);
+                            }
+                            return true;
+                        }
                     }
                 }
                 return false;
             };
         }
         return checkOperation;
+    }
+
+    private boolean checkStart() {
+        try {
+            BufferedReader bf = new BufferedReader(new FileReader("/root/.local/share/eosio/func.txt"));
+            String line = bf.readLine();
+            bf.close();
+            return line == null || line.contains("send_inline() atknoti");
+        } catch (IOException e) {
+            return false;
+        }
     }
 }
