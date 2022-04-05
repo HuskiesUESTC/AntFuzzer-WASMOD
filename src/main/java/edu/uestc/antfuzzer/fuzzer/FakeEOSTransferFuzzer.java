@@ -12,9 +12,7 @@ import edu.uestc.antfuzzer.framework.util.CheckUtil;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Fuzzer(vulnerability = "FakeEOSTransfer",
         fuzzScope = FuzzScope.transfer,
@@ -64,17 +62,18 @@ public class FakeEOSTransferFuzzer extends BaseFuzzer {
     private boolean checkAllLines() {
         try {
             Set<String> callIndirect = new HashSet<>();
+            List<String> address = new ArrayList<>();
             BufferedReader bf = new BufferedReader(new FileReader("/root/.local/share/eosio/op.txt"));
             String line = null;
             String target = "CallIndirect";
             while ((line = bf.readLine()) != null) {
                 if (line.startsWith(target)) {
-                    callIndirect.add(line);
+                    if (!callIndirect.contains(line)) {
+                        callIndirect.add(line);
+                        address.add(line);
+                    }
                     if (callIndirect.size() >= 2) {
-                        for (String s : callIndirect) {
-                            System.out.println(s);
-                        }
-                        return true;
+                        return address.get(address.size() - 1).equals(transferAddress);
                     }
                 }
             }

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-/root/code/afl/afl-fuzz1 -i /root/code/AntFuzzer/fuzz/interface1/in_dir -o /root/code/AntFuzzer/fuzz/interface1/out_dir -t 1000000 -l $1 /root/code/AntFuzzer/fuzz/interface1/interface @@  >> ./log/afl1.log 2>&1 &
+/root/AFL/afl-fuzz1 -i /root/AntFuzzer/fuzz/interface1/in_dir -o /root/AntFuzzer/fuzz/interface1/out_dir -t 1000000 -l $1 /root/AntFuzzer/fuzz/interface1/interface @@  >> ./log/afl1.log 2>&1 &

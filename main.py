@@ -3,8 +3,8 @@ import psutil
 import redis
 import threading
 
-script_path = '/root/code/AntFuzzer/mvn.sh'
-root_path = '/root/code/AntFuzzer/config/'
+script_path = '/root/AntFuzzer/mvn.sh'
+root_path = '/root/AntFuzzer/config/'
 client = redis.StrictRedis()
 config_key = 'AntFuzzer-Config'
 init_key = 'AntFuzzer-Init'
@@ -35,6 +35,44 @@ def execute_task():
             # 'HackRecipient.json',
             'IntegerOverflow.json',
             # 'StackOverflow.json',
+            # coverage
+            # 'coverage/AFL-Test.json',
+            # 'coverage/Local-Test.json',
+            # eosfuzzer
+            #   afl
+            'eosfuzzer/afl/FakeEOSTransfer.json',
+            # 'eosfuzzer/afl/ForgedNotification.json',
+            # 'eosfuzzer/afl/MissingAuth.json',
+            # 'eosfuzzer/afl/BlockDependency-MissingAuth.json',
+            # 'eosfuzzer/afl/Rollback.json',
+            # 'eosfuzzer/afl/HackRecipient.json',
+            # 'eosfuzzer/afl/Test.json',
+            #   local
+            # 'eosfuzzer/local/FakeEOSTransfer.json',
+            # 'eosfuzzer/local/ForgedNotification.json',
+            # 'eosfuzzer/local/MissingAuth.json',
+            # 'eosfuzzer/local/BlockDependency-MissingAuth.json',
+            # 'eosfuzzer/local/Rollback.json',
+            # 'eosfuzzer/local/HackRecipient.json',
+            # 'eosfuzzer/local/IntegerOverflow.json',
+            # 'eosfuzzer/local/StackOverflow.json',
+            # xblocks
+            #   afl
+            # 'xblocks/afl/FakeEOSTransfer.json',
+            # 'xblocks/afl/ForgedNotification.json',
+            # 'xblocks/afl/MissingAuth.json',
+            # 'xblocks/afl/BlockDependency-MissingAuth.json',
+            # 'xblocks/afl/Rollback.json',
+            # 'xblocks/afl/HackRecipient.json',
+            #   local
+            # 'xblocks/local/FakeEOSTransfer.json',
+            # 'xblocks/local/ForgedNotification.json',
+            # 'xblocks/local/MissingAuth.json',
+            # 'xblocks/local/BlockDependency-MissingAuth.json',
+            # 'xblocks/local/Rollback.json',
+            # 'xblocks/local/HackRecipient.json',
+            # 'xblocks/local/IntegerOverflow.json',
+            # 'xblocks/local/StackOverflow.json',
         ]
         # 将配置文件加入到redis队列中
         for item in config:

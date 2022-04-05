@@ -1,30 +1,30 @@
-start_time        : 1630481065
-last_update       : 1630481081
-fuzzer_pid        : 48414
+start_time        : 1649139921
+last_update       : 1649139921
+fuzzer_pid        : 81238
 cycles_done       : 0
-execs_done        : 2027
-execs_per_sec     : 0.90
+execs_done        : 0
+execs_per_sec     : 0.00
 paths_total       : 1
-paths_favored     : 1
+paths_favored     : 0
 paths_found       : 0
 paths_imported    : 0
 max_depth         : 1
 cur_path          : 0
-pending_favs      : 1
+pending_favs      : 0
 pending_total     : 1
 variable_paths    : 0
-stability         : 100.00%
+stability         : 0.00%
 bitmap_cvg        : 0.00%
 unique_crashes    : 0
 unique_hangs      : 0
 last_path         : 0
 last_crash        : 0
 last_hang         : 0
-execs_since_crash : 2027
+execs_since_crash : 0
 exec_timeout      : 1000000
 afl_banner        : interface
 afl_version       : 2.57b
 target_mode       : default
-command_line      : /Users/jiangtianxing/code/afl/afl-fuzz1 -i /Users/jiangtianxing/code/AntFuzzer/fuzz/interface1/in_dir -o /Users/jiangtianxing/code/AntFuzzer/fuzz/interface1/out_dir -t 1000000 -l 24 /Users/jiangtianxing/code/AntFuzzer/fuzz/interface1/interface @@
-slowest_exec_ms   : 8602
-peak_rss_mb       : 0
+command_line      : /root/AFL/afl-fuzz1 -i /root/AntFuzzer/fuzz/interface1/in_dir -o /root/AntFuzzer/fuzz/interface1/out_dir -t 1000000 -l 20 /root/AntFuzzer/fuzz/interface1/interface @@
+slowest_exec_ms   : 0
+peak_rss_mb       : not available while afl is running

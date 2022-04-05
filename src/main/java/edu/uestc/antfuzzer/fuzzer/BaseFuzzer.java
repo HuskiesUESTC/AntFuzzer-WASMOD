@@ -55,6 +55,8 @@ public class BaseFuzzer {
     // 发现漏洞次数
     int successVulCount = 0;
 
+    String transferAddress = null;
+
     /**
      * 初始化参数生成器和cleos工具
      */
@@ -223,6 +225,7 @@ public class BaseFuzzer {
 
     /**
      * 测试被测合约能否接受EOS转账
+     * 设置transfer函数的地址
      * @return true if it can
      */
     public boolean canAcceptEOS() {
@@ -242,16 +245,19 @@ public class BaseFuzzer {
             );
             String filepath = configUtil.getFrameworkConfig().getEosio().getOpFilepath();
             Set<String> callIndirect = new HashSet<>();
+            List<String> address = new ArrayList<>();
             BufferedReader bf = new BufferedReader(new FileReader(filepath));
             String line = null;
             String target = "CallIndirect";
             while ((line = bf.readLine()) != null) {
                 if (line.startsWith(target)) {
-                    callIndirect.add(line);
+                    if (!callIndirect.contains(target)) {
+                        callIndirect.add(line);
+                        address.add(line);
+                    }
                     if (callIndirect.size() >= 2) {
-                        for (String s : callIndirect) {
-                            System.out.println(s);
-                        }
+                        // 最后一条跳转地址是
+                        transferAddress = address.get(address.size() - 1);
                         return true;
                     }
                 }
