@@ -42,23 +42,30 @@ public class InitFuzzerFuzzingEnvironment extends BeforeCheck {
 
     @Override
     protected boolean currentCheck() throws IOException, InterruptedException, IllegalAccessException, InvocationTargetException {
-        smartContract = environmentUtil.getSmartContract();
-        fuzzer = environmentUtil.getFuzzer();
+        try {
+            smartContract = environmentUtil.getSmartContract();
+            fuzzer = environmentUtil.getFuzzer();
+            return setSmartContractActions() &&
+                    validateFuzzerFuzzingScope() && // 比对fuzzer的测试域是否符合当前fuzzing合约的函数
+                    initEOSEnvironment() && // 初始化EOS环境
+                    injectObjectIntoFuzzer() && // 为fuzzer注入参数
+                    setCurrentArgumentGenerator() && // 设置参数生成器
+                    setEnvironmentArguments() && // 设置环境变量
+                    executeFuzzerBeforeMethod(); // 执行before
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return false;
+        }
 
-        return setSmartContractActions() &&
-                validateFuzzerFuzzingScope() && // 比对fuzzer的测试域是否符合当前fuzzing合约的函数
-                initEOSEnvironment() && // 初始化EOS环境
-                injectObjectIntoFuzzer() && // 为fuzzer注入参数
-                setCurrentArgumentGenerator() && // 设置参数生成器
-                setEnvironmentArguments() && // 设置环境变量
-                executeFuzzerBeforeMethod(); // 执行before
     }
 
     /**
      * 设置当前需要测试的智能合约函数
      */
     private boolean setSmartContractActions() {
-        environmentUtil.setActions(smartContract.getAbi().getActions());
+        List<Action> actions = (smartContract != null && smartContract.getAbi() != null && smartContract.getAbi().getActions() != null) ?
+                smartContract.getAbi().getActions() : new ArrayList<>();
+        environmentUtil.setActions(actions);
         return true;
     }
 
